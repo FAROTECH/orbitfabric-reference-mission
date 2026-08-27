@@ -1,0 +1,106 @@
+site_name: OrbitFabric Reference Mission
+site_description: Contract-oriented engineering reference mission for OrbitFabric Core and OrbitFabric Studio
+site_url: https://farotech.github.io/orbitfabric-reference-mission/
+repo_url: https://github.com/FAROTECH/orbitfabric-reference-mission
+repo_name: FAROTECH/orbitfabric-reference-mission
+edit_uri: ""
+
+# Markdown source directory rendered by MkDocs.
+docs_dir: docs
+
+theme:
+  name: material
+  language: en
+  icon:
+    repo: fontawesome/brands/github
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: cyan
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: cyan
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+  features:
+    - navigation.instant
+    - navigation.instant.progress
+    - navigation.sections
+    - navigation.top
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.tracking
+    - navigation.path
+    - navigation.indexes
+    - navigation.footer
+    - toc.follow
+    - search.suggest
+    - search.highlight
+    - search.share
+    - content.code.copy
+    - content.tabs.link
+
+plugins:
+  - search
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+
+extra_css:
+  - stylesheets/extra.css
+
+nav:
+  - Home: index.md
+  - Orientation:
+      - Purpose and Reading Path: 00-orientation/00-purpose-and-reading-path.md
+  - Tutorial:
+      - Tutorial Index: 02-tutorial/00-tutorial-index.md
+      - Mission Context:
+          - 01, Mission Context and Need: 02-tutorial/01-mission-context-and-need.md
+          - 02, Spacecraft Identity: 02-tutorial/02-spacecraft-identity.md
+      - Mission Contract Construction:
+          - 03, Subsystem Topology: 02-tutorial/03-subsystem-topology.md
+          - 04, Operational Modes: 02-tutorial/04-operational-modes.md
+          - 05, Telemetry Contract: 02-tutorial/05-telemetry-contract.md
+          - 06, Command Contract: 02-tutorial/06-command-contract.md
+          - 07, Event Contract: 02-tutorial/07-event-contract.md
+          - 08, Fault Contract: 02-tutorial/08-fault-contract.md
+          - 09, Payload Lifecycle: 02-tutorial/09-payload-lifecycle.md
+          - 10, Data Products and Storage: 02-tutorial/10-data-products-and-storage.md
+          - 11, Contact and Downlink Assumptions: 02-tutorial/11-contact-and-downlink-assumptions.md
+          - 12, Commandability and Autonomy: 02-tutorial/12-commandability-and-autonomy.md
+      - Executable Scenario Walkthroughs:
+          - 13, Nominal Payload Acquisition Scenario: 02-tutorial/13-nominal-payload-acquisition-scenario.md
+          - 14, Low-Power Payload Suspension Scenario: 02-tutorial/14-low-power-payload-suspension-scenario.md
+          - 15, ADCS Degraded Payload Inhibit Scenario: 02-tutorial/15-adcs-degraded-payload-inhibit-scenario.md
+          - 16, Delayed Downlink Backlog Scenario: 02-tutorial/16-delayed-downlink-backlog-scenario.md
+      - Generated Evidence Surfaces:
+          - 17, Generated Artifacts: 02-tutorial/17-generated-artifacts.md
+          - 18, Scenario Evidence: 02-tutorial/18-scenario-evidence.md
+          - 19, Runtime-Facing Contract Bindings: 02-tutorial/19-runtime-facing-contract-bindings.md
+          - 20, Ground-Facing Integration Artifacts: 02-tutorial/20-ground-facing-integration-artifacts.md
+          - 21, Dashboard and Coverage Foundation: 02-tutorial/21-dashboard-and-coverage-foundation.md
+          - 22, Capability Coverage Matrix: 02-tutorial/22-orbitfabric-capability-coverage-matrix.md
+      - Studio Mission Exploration:
+          - 23, Opening the Reference Mission in Studio: 02-tutorial/23-opening-the-reference-mission-in-studio.md
+          - 24, Mission Atlas and Entity X-Ray: 02-tutorial/24-mission-atlas-and-entity-xray.md
+          - 25, Following Relationships and FDIR Context: 02-tutorial/25-following-relationships-and-fdir-context.md
+          - 26, Understanding Operational Logic: 02-tutorial/26-understanding-operational-logic.md
+          - 27, Core and Studio One Engineering Workflow: 02-tutorial/27-core-and-studio-one-engineering-workflow.md
+  - Reference Overview:
+      - Current Reference Mission Overview: 03-reference-overview/00-current-reference-mission-overview.md

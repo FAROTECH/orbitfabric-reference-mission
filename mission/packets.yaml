@@ -1,0 +1,48 @@
+packets:
+  - id: hk_critical_packet
+    name: Critical housekeeping packet
+    type: json
+    max_payload_bytes: 512
+    period: 60s
+    telemetry:
+      - eps.battery.voltage
+      - eps.battery.state_of_charge
+      - eps.solar.input_power
+      - obc.watchdog_reset_counter
+      - uhf_radio.beacon_state
+    description: Low-rate critical housekeeping packet suitable for beacon or constrained downlink.
+
+  - id: hk_nominal_packet
+    name: Nominal housekeeping packet
+    type: json
+    max_payload_bytes: 1024
+    period: 120s
+    telemetry:
+      - obc.cpu_load
+      - data_storage.used_percent
+      - adcs.pointing_status
+      - adcs.angular_rate
+      - sband_radio.link_state
+    description: Nominal health and status packet for routine operations.
+
+  - id: payload_status_packet
+    name: Payload status packet
+    type: json
+    max_payload_bytes: 1024
+    period: 30s
+    telemetry:
+      - radiation_payload.acquisition_active
+      - radiation_payload.event_rate
+      - radiation_payload.histogram_ready
+      - radiation_payload.histogram_pending_bytes
+    description: Payload status packet used during science acquisition.
+
+  - id: science_histogram_packet
+    name: Science histogram packet
+    type: binary_compact
+    max_payload_bytes: 4096
+    telemetry:
+      - radiation_payload.event_rate
+      - radiation_payload.histogram_ready
+      - radiation_payload.histogram_pending_bytes
+    description: Compact packet representing a generated radiation histogram product.

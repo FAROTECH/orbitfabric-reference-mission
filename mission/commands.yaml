@@ -1,0 +1,188 @@
+commands:
+  - id: obc.request_health_check
+    target: obc
+    description: Request a basic spacecraft health check from the OBC.
+    arguments: []
+    allowed_modes:
+      - STANDBY
+      - NOMINAL
+      - DEGRADED_POWER
+      - SAFE
+    preconditions: []
+    requires_ack: true
+    timeout_ms: 5000
+    risk: low
+    emits:
+      - obc.health_check_completed
+    expected_effects:
+      health_check: completed
+
+  - id: obc.enter_nominal
+    target: obc
+    description: Request transition from standby or degraded-power state into nominal operations.
+    arguments: []
+    allowed_modes:
+      - STANDBY
+      - DEGRADED_POWER
+    preconditions: []
+    requires_ack: true
+    timeout_ms: 5000
+    risk: medium
+    emits:
+      - obc.mode_changed
+    expected_effects:
+      mode_transition:
+        to: NOMINAL
+
+  - id: payload.start_acquisition
+    target: radiation_payload
+    description: Enable radiation payload acquisition.
+    arguments:
+      - name: duration_s
+        type: uint32
+        min: 1
+        max: 3600
+        default: 300
+        description: Requested acquisition duration in seconds.
+    allowed_modes:
+      - NOMINAL
+    preconditions:
+      - adcs.pointing_status == NOMINAL
+      - eps.battery.state_of_charge > 30
+    requires_ack: true
+    timeout_ms: 10000
+    risk: medium
+    emits:
+      - payload.acquisition_started
+      - obc.mode_changed
+    expected_effects:
+      mode_transition:
+        to: PAYLOAD_ACTIVE
+      payload_lifecycle:
+        payload: radiation_event_payload
+        state: ACQUIRING
+      telemetry:
+        radiation_payload.acquisition_active: true
+
+  - id: payload.stop_acquisition
+    target: radiation_payload
+    description: Stop radiation payload acquisition without asserting the post-recovery spacecraft mode.
+    arguments: []
+    allowed_modes:
+      - PAYLOAD_ACTIVE
+      - DEGRADED_POWER
+      - ADCS_DEGRADED
+      - SAFE
+    preconditions: []
+    requires_ack: true
+    timeout_ms: 10000
+    risk: low
+    emits:
+      - payload.acquisition_completed
+    expected_effects:
+      payload_lifecycle:
+        payload: radiation_event_payload
+        state: READY
+      telemetry:
+        radiation_payload.acquisition_active: false
+
+  - id: payload.request_histogram
+    target: radiation_payload
+    description: Request generation of a payload histogram data product.
+    arguments: []
+    allowed_modes:
+      - PAYLOAD_ACTIVE
+      - NOMINAL
+    preconditions: []
+    requires_ack: true
+    timeout_ms: 15000
+    risk: low
+    emits:
+      - payload.histogram_generated
+    expected_effects:
+      payload_lifecycle:
+        payload: radiation_event_payload
+        state: HISTOGRAM_READY
+      telemetry:
+        radiation_payload.histogram_ready: true
+      data_products:
+        - radiation_histogram
+
+  - id: comms.mark_sband_contact_started
+    target: sband_radio
+    description: Mark the beginning of a scheduled S-band contact window.
+    arguments: []
+    allowed_modes:
+      - NOMINAL
+      - PAYLOAD_ACTIVE
+      - DOWNLINK
+    preconditions: []
+    requires_ack: true
+    timeout_ms: 5000
+    risk: low
+    emits:
+      - comms.sband_contact_started
+    expected_effects:
+      telemetry:
+        sband_radio.link_state: LINK_READY
+
+  - id: comms.start_sband_downlink
+    target: sband_radio
+    description: Start S-band downlink for eligible stored science products.
+    arguments: []
+    allowed_modes:
+      - NOMINAL
+      - PAYLOAD_ACTIVE
+      - DOWNLINK
+    preconditions: []
+    requires_ack: true
+    timeout_ms: 10000
+    risk: medium
+    emits:
+      - comms.sband_downlink_started
+      - obc.mode_changed
+    expected_effects:
+      mode_transition:
+        to: DOWNLINK
+      telemetry:
+        sband_radio.link_state: DOWNLINKING
+
+  - id: comms.stop_sband_downlink
+    target: sband_radio
+    description: Stop S-band downlink at the end of the contact opportunity.
+    arguments: []
+    allowed_modes:
+      - DOWNLINK
+    preconditions: []
+    requires_ack: true
+    timeout_ms: 10000
+    risk: low
+    emits:
+      - comms.sband_downlink_completed
+      - obc.mode_changed
+    expected_effects:
+      mode_transition:
+        to: NOMINAL
+      telemetry:
+        sband_radio.link_state: IDLE
+
+  - id: obc.enter_safe_mode
+    target: obc
+    description: Force spacecraft into safe mode.
+    arguments: []
+    allowed_modes:
+      - STANDBY
+      - NOMINAL
+      - PAYLOAD_ACTIVE
+      - DOWNLINK
+      - DEGRADED_POWER
+      - ADCS_DEGRADED
+    preconditions: []
+    requires_ack: true
+    timeout_ms: 5000
+    risk: high
+    emits:
+      - obc.mode_changed
+    expected_effects:
+      mode_transition:
+        to: SAFE

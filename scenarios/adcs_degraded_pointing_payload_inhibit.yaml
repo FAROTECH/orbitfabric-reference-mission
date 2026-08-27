@@ -1,0 +1,96 @@
+scenario:
+  id: adcs_degraded_pointing_payload_inhibit
+  name: ADCS degraded pointing payload inhibit
+  description: >
+    A nominal payload acquisition is interrupted when ADCS pointing becomes
+    degraded. The ADCS fault is triggered after two consecutive degraded
+    pointing samples, onboard autonomy stops the payload, and the spacecraft
+    transitions to ADCS-degraded operations.
+
+mission:
+  path: ../mission
+
+initial_state:
+  mode: NOMINAL
+  telemetry:
+    eps.battery.voltage: 8.0
+    eps.battery.state_of_charge: 68.0
+    eps.solar.input_power: 4.2
+    obc.cpu_load: 26.0
+    obc.watchdog_reset_counter: 0
+    data_storage.used_percent: 36.0
+    adcs.pointing_status: NOMINAL
+    adcs.angular_rate: 0.4
+    uhf_radio.beacon_state: ENABLED
+    sband_radio.link_state: IDLE
+    radiation_payload.acquisition_active: false
+    radiation_payload.event_rate: 0.0
+    radiation_payload.histogram_ready: false
+    radiation_payload.histogram_pending_bytes: 0
+
+steps:
+  - t: 0
+    expect_mode: NOMINAL
+
+  - t: 5
+    command: payload.start_acquisition
+    args:
+      duration_s: 600
+
+  - t: 6
+    expect_event: payload.acquisition_started
+
+  - t: 7
+    expect_mode: PAYLOAD_ACTIVE
+
+  - t: 10
+    expect:
+      payload_lifecycle:
+        payload: radiation_event_payload
+        state: ACQUIRING
+
+  - t: 30
+    inject:
+      telemetry: radiation_payload.event_rate
+      value: 38.0
+
+  - t: 90
+    inject:
+      telemetry: adcs.pointing_status
+      value: DEGRADED
+
+  - t: 91
+    expect_mode: PAYLOAD_ACTIVE
+
+  - t: 92
+    inject:
+      telemetry: adcs.pointing_status
+      value: DEGRADED
+
+  - t: 93
+    expect_event: adcs.pointing_degraded
+
+  - t: 94
+    expect_mode: ADCS_DEGRADED
+
+  - t: 95
+    expect_command:
+      id: payload.stop_acquisition
+      dispatch: AUTO
+
+  - t: 96
+    expect_event: payload.acquisition_completed
+
+  - t: 97
+    expect_telemetry:
+      radiation_payload.acquisition_active: false
+
+  - t: 98
+    expect:
+      payload_lifecycle:
+        payload: radiation_event_payload
+        state: READY
+
+  - t: 99
+    expect:
+      scenario_status: PASSED

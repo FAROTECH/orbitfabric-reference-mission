@@ -1,0 +1,7 @@
+spacecraft:
+  id: of-rm-1
+  name: OrbitFabric Reference Mission 1
+  class: cubesat
+  form_factor: 3U
+  mission_type: scientific_technology_demonstrator
+  model_version: 0.1.0-reference-skeleton

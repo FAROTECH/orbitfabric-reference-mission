@@ -1,0 +1,36 @@
+contacts:
+  contact_profiles:
+    - id: reference_ground_station
+      target: reference_ground_segment
+      description: Abstract ground station used by the Reference Mission tutorial.
+
+  link_profiles:
+    - id: uhf_low_rate_downlink
+      direction: downlink
+      assumed_rate_bps: 9600
+      description: Low-rate UHF beacon and housekeeping downlink.
+
+    - id: sband_science_downlink
+      direction: downlink
+      assumed_rate_bps: 1000000
+      description: Simplified S-band link profile for science product downlink.
+
+  contact_windows:
+    - id: sband_window_001
+      contact_profile: reference_ground_station
+      link_profile: sband_science_downlink
+      start: "2026-01-01T00:20:00Z"
+      duration_seconds: 300
+      assumed_capacity_bytes: 1000000
+      description: Representative S-band contact window used by the nominal payload acquisition scenario.
+
+  downlink_flows:
+    - id: science_priority_flow
+      contact_profile: reference_ground_station
+      link_profile: sband_science_downlink
+      queue_policy: priority_then_age
+      eligible_data_products:
+        - radiation_histogram
+        - critical_housekeeping
+        - scenario_evidence_log
+      description: Priority-based downlink flow for science and operational evidence products.

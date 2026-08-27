@@ -1,0 +1,84 @@
+# Purpose and Reading Path
+
+Status: editorial orientation  
+Scope: OrbitFabric Reference Mission documentation structure
+
+## Purpose
+
+This repository is the Reference Mission workspace for OrbitFabric.
+
+Its role is not to provide a static set of YAML files and not to document a mission that is already complete. Its role is to show how a realistic small-spacecraft Mission Data Contract can be introduced progressively, starting from operational reasoning and ending in validated model artifacts, scenario evidence and downstream visual inspection in OrbitFabric Studio.
+
+The intended reader should experience the Reference Mission as a construction and understanding path:
+
+```text
+mission need
+-> operational scenario
+-> subsystem integration problem
+-> mission model fragment
+-> Core validation
+-> generated artifacts
+-> scenario evidence
+-> Studio exploration
+```
+
+## Editorial rule
+
+The validated mission model is the technical end-state. It is not the tutorial order.
+
+The tutorial must be reconstructed from the validated baseline, then presented forward as if the reader were building the mission step by step.
+
+In practice:
+
+```text
+validated end-state
+-> editorial decomposition
+-> step-by-step construction path
+-> reader-facing tutorial
+-> Studio-based mission understanding
+```
+
+## Current reading path
+
+Use this order when reading or extending the documentation:
+
+1. `docs/00-orientation/`, repository purpose and reading path.
+2. `docs/02-tutorial/`, progressive tutorial path from mission need through Core evidence and Studio exploration.
+3. `docs/03-reference-overview/`, compact view of the current validated model and ecosystem role.
+
+The repository previously explored a broader documentation taxonomy with separate engineering-foundation, scenario-design and Studio-driver areas. The public structure was later deliberately simplified. Those concerns now live inside the tutorial and reference overview instead of placeholder sections.
+
+## What must remain separate
+
+The documentation must keep a strict conceptual separation between:
+
+| Area | Role |
+|---|---|
+| Tutorial construction steps | Build the mission progressively for the reader. |
+| Scenario walkthroughs | Explain why each executable scenario exists and what evidence it exercises. |
+| Generated evidence steps | Explain Core-owned outputs and their compatibility boundaries. |
+| Studio exploration steps | Show how Studio consumes Core-owned facts to help a human understand the mission. |
+| Reference overview | Describe the current validated end-state without pretending to be the construction sequence. |
+
+## Core and Studio boundary
+
+The tutorial must preserve this architectural rule throughout:
+
+```text
+Core defines, validates, computes and emits.
+Studio consumes, links, organizes and renders.
+```
+
+Studio must never be described as a second Mission Data Contract implementation or as the source of mission semantics.
+
+## Rule for future prompts
+
+Any future follow-up prompt for another chat must preserve this editorial line:
+
+```text
+Do not present the validated model as if it were the tutorial sequence.
+Use the validated baseline as source of truth, then reconstruct the tutorial incrementally.
+Keep model construction, scenario evidence, generated surfaces and Studio interpretation conceptually separate.
+Document only Studio behavior that exists in the current validated preview.
+Do not let Studio invent Mission Data Contract semantics.
+```

@@ -1,0 +1,238 @@
+telemetry:
+  - id: eps.battery.voltage
+    name: Battery voltage
+    type: float32
+    unit: V
+    source: eps
+    sampling: 10s
+    criticality: critical
+    persistence: store_and_downlink
+    downlink_priority: critical
+    quality:
+      required: true
+      default: nominal
+    limits:
+      warning_low: 7.2
+      critical_low: 6.8
+    description: Battery bus voltage used to evaluate low-power and critical-power conditions.
+
+  - id: eps.battery.state_of_charge
+    name: Battery state of charge
+    type: float32
+    unit: percent
+    source: eps
+    sampling: 10s
+    criticality: critical
+    persistence: store_and_downlink
+    downlink_priority: critical
+    quality:
+      required: true
+      default: nominal
+    limits:
+      warning_low: 30.0
+      critical_low: 20.0
+    description: Estimated battery state of charge.
+
+  - id: eps.solar.input_power
+    name: Solar input power
+    type: float32
+    unit: W
+    source: eps
+    sampling: 10s
+    criticality: high
+    persistence: store_and_downlink
+    downlink_priority: high
+    quality:
+      required: true
+      default: nominal
+    limits:
+      warning_low: 0.2
+      critical_low: 0.0
+    description: Solar input power available to the spacecraft.
+
+  - id: obc.cpu_load
+    name: OBC CPU load
+    type: float32
+    unit: percent
+    source: obc
+    sampling: 30s
+    criticality: medium
+    persistence: store
+    downlink_priority: medium
+    quality:
+      required: true
+      default: nominal
+    limits:
+      warning_high: 85.0
+      critical_high: 95.0
+    description: Processor load used as coarse OBC health indicator.
+
+  - id: obc.watchdog_reset_counter
+    name: Watchdog reset counter
+    type: uint32
+    unit: count
+    source: obc
+    sampling: 60s
+    criticality: high
+    persistence: store_and_downlink
+    downlink_priority: high
+    quality:
+      required: true
+      default: nominal
+    limits:
+      warning_high: 1
+      critical_high: 3
+    description: Monotonic count of watchdog resets observed by the OBC.
+
+  - id: data_storage.used_percent
+    name: Storage used
+    type: float32
+    unit: percent
+    source: data_storage
+    sampling: 30s
+    criticality: high
+    persistence: store_and_downlink
+    downlink_priority: high
+    quality:
+      required: true
+      default: nominal
+    limits:
+      warning_high: 80.0
+      critical_high: 90.0
+    description: Fraction of onboard storage currently used.
+
+  - id: adcs.pointing_status
+    name: ADCS pointing status
+    type: enum
+    unit: state
+    source: adcs
+    sampling: 10s
+    criticality: high
+    persistence: store_and_downlink
+    downlink_priority: high
+    quality:
+      required: true
+      default: nominal
+    enum:
+      - NOT_READY
+      - COARSE
+      - NOMINAL
+      - DEGRADED
+    description: Coarse ADCS readiness state for payload acquisition.
+
+  - id: adcs.angular_rate
+    name: Angular rate
+    type: float32
+    unit: deg_s
+    source: adcs
+    sampling: 10s
+    criticality: medium
+    persistence: store
+    downlink_priority: medium
+    quality:
+      required: true
+      default: nominal
+    limits:
+      warning_high: 2.0
+      critical_high: 5.0
+    description: Representative spacecraft angular rate magnitude.
+
+  - id: uhf_radio.beacon_state
+    name: UHF beacon state
+    type: enum
+    unit: state
+    source: uhf_radio
+    sampling: 60s
+    criticality: medium
+    persistence: store_and_downlink
+    downlink_priority: high
+    quality:
+      required: true
+      default: nominal
+    enum:
+      - DISABLED
+      - ENABLED
+      - TRANSMITTING
+    description: Current UHF beacon operational state.
+
+  - id: sband_radio.link_state
+    name: S-band link state
+    type: enum
+    unit: state
+    source: sband_radio
+    sampling: 10s
+    criticality: medium
+    persistence: store_and_downlink
+    downlink_priority: medium
+    quality:
+      required: true
+      default: nominal
+    enum:
+      - IDLE
+      - ACQUIRING
+      - LINK_READY
+      - DOWNLINKING
+      - FAILED
+    description: S-band link state during high-rate downlink operations.
+
+  - id: radiation_payload.acquisition_active
+    name: Payload acquisition active
+    type: bool
+    unit: bool
+    source: radiation_payload
+    sampling: 5s
+    criticality: medium
+    persistence: store_and_downlink
+    downlink_priority: medium
+    quality:
+      required: true
+      default: nominal
+    description: Indicates whether the radiation payload is actively acquiring science data.
+
+  - id: radiation_payload.event_rate
+    name: Radiation event rate
+    type: float32
+    unit: events_s
+    source: radiation_payload
+    sampling: 5s
+    criticality: medium
+    persistence: store_and_downlink
+    downlink_priority: high
+    quality:
+      required: true
+      default: nominal
+    limits:
+      warning_high: 250.0
+      critical_high: 500.0
+    description: Event rate measured by the radiation payload.
+
+  - id: radiation_payload.histogram_ready
+    name: Payload histogram ready
+    type: bool
+    unit: bool
+    source: radiation_payload
+    sampling: 10s
+    criticality: medium
+    persistence: store_and_downlink
+    downlink_priority: high
+    quality:
+      required: true
+      default: nominal
+    description: Indicates that a science histogram product is available for storage or downlink.
+
+  - id: radiation_payload.histogram_pending_bytes
+    name: Pending histogram bytes
+    type: uint32
+    unit: bytes
+    source: radiation_payload
+    sampling: 30s
+    criticality: medium
+    persistence: store_and_downlink
+    downlink_priority: high
+    quality:
+      required: true
+      default: nominal
+    limits:
+      warning_high: 500000
+      critical_high: 2000000
+    description: Estimated amount of payload histogram data waiting for downlink.

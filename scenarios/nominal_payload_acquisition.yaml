@@ -1,0 +1,106 @@
+scenario:
+  id: nominal_payload_acquisition
+  name: Nominal payload acquisition
+  description: >
+    Ground requests a nominal radiation payload acquisition, a histogram is
+    generated, and the product becomes eligible for S-band downlink.
+
+mission:
+  path: ../mission
+
+initial_state:
+  mode: NOMINAL
+  telemetry:
+    eps.battery.voltage: 8.1
+    eps.battery.state_of_charge: 72.0
+    eps.solar.input_power: 4.5
+    obc.cpu_load: 22.0
+    obc.watchdog_reset_counter: 0
+    data_storage.used_percent: 34.0
+    adcs.pointing_status: NOMINAL
+    adcs.angular_rate: 0.2
+    uhf_radio.beacon_state: ENABLED
+    sband_radio.link_state: IDLE
+    radiation_payload.acquisition_active: false
+    radiation_payload.event_rate: 0.0
+    radiation_payload.histogram_ready: false
+    radiation_payload.histogram_pending_bytes: 0
+
+steps:
+  - t: 0
+    expect_mode: NOMINAL
+
+  - t: 5
+    command: payload.start_acquisition
+    args:
+      duration_s: 300
+
+  - t: 6
+    expect_event: payload.acquisition_started
+
+  - t: 7
+    expect_mode: PAYLOAD_ACTIVE
+
+  - t: 10
+    inject:
+      telemetry: radiation_payload.acquisition_active
+      value: true
+
+  - t: 20
+    inject:
+      telemetry: radiation_payload.event_rate
+      value: 42.0
+
+  - t: 60
+    command: payload.request_histogram
+
+  - t: 62
+    expect_event: payload.histogram_generated
+
+  - t: 63
+    inject:
+      telemetry: radiation_payload.histogram_ready
+      value: true
+
+  - t: 64
+    inject:
+      telemetry: radiation_payload.histogram_pending_bytes
+      value: 4096
+
+  - t: 70
+    expect:
+      data_flow:
+        data_product: radiation_histogram
+        triggered_by_command: payload.request_histogram
+        eligible_downlink_flow: science_priority_flow
+
+  - t: 1200
+    command: comms.mark_sband_contact_started
+
+  - t: 1201
+    expect_event: comms.sband_contact_started
+
+  - t: 1205
+    command: comms.start_sband_downlink
+
+  - t: 1206
+    expect_event: comms.sband_downlink_started
+
+  - t: 1207
+    expect_mode: DOWNLINK
+
+  - t: 1210
+    expect:
+      data_flow:
+        data_product: radiation_histogram
+        eligible_downlink_flow: science_priority_flow
+        contact_window: sband_window_001
+
+  - t: 1500
+    command: comms.stop_sband_downlink
+
+  - t: 1501
+    expect_event: comms.sband_downlink_completed
+
+  - t: 1502
+    expect_mode: NOMINAL

@@ -1,0 +1,35 @@
+payloads:
+  - id: radiation_event_payload
+    subsystem: radiation_payload
+    profile: iod
+    lifecycle:
+      initial_state: "OFF"
+      states:
+        - "OFF"
+        - READY
+        - ACQUIRING
+        - HISTOGRAM_READY
+        - DOWNLINK_PENDING
+        - FAULT
+    telemetry:
+      produced:
+        - radiation_payload.acquisition_active
+        - radiation_payload.event_rate
+        - radiation_payload.histogram_ready
+        - radiation_payload.histogram_pending_bytes
+    commands:
+      accepted:
+        - payload.start_acquisition
+        - payload.stop_acquisition
+        - payload.request_histogram
+    events:
+      generated:
+        - payload.acquisition_started
+        - payload.acquisition_completed
+        - payload.histogram_generated
+        - payload.radiation_burst_detected
+        - payload.acquisition_suspended
+    faults:
+      possible:
+        - payload.timeout
+    description: NanoSiPM-like radiation event payload used as the main Reference Mission science source.

@@ -1,0 +1,88 @@
+name: Reference Mission CI
+
+on:
+  push:
+    branches:
+      - main
+      - "docs/**"
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Reference Mission
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install OrbitFabric Core baseline and docs dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install "git+https://github.com/FAROTECH/orbitfabric.git@47d37ec2c50eae40e13303eea900eb119bd2e0dd"
+          python -m pip install -r requirements-docs.txt
+
+      - name: Show OrbitFabric version
+        run: orbitfabric --version
+
+      - name: Prepare generated output directories
+        run: |
+          mkdir -p generated/reports
+          mkdir -p generated/logs
+
+      - name: Lint Reference Mission
+        run: orbitfabric lint mission/
+
+      - name: Export Core inspection surfaces
+        run: |
+          orbitfabric export model-summary mission/ \
+            --json generated/reports/model_summary.json
+          orbitfabric export mission-snapshot mission/ \
+            --json generated/reports/mission_snapshot.json
+          orbitfabric export entity-index mission/ \
+            --json generated/reports/entity_index.json
+          orbitfabric export relationship-manifest mission/ \
+            --json generated/reports/relationship_manifest.json
+          orbitfabric export dashboard-summary mission/ \
+            --json generated/reports/dashboard_summary.json
+
+      - name: Run Reference Mission scenarios
+        run: |
+          orbitfabric sim scenarios/nominal_payload_acquisition.yaml \
+            --json generated/reports/nominal_payload_acquisition_report.json \
+            --log generated/logs/nominal_payload_acquisition.txt
+          orbitfabric sim scenarios/eclipse_low_power_payload_suspension.yaml \
+            --json generated/reports/eclipse_low_power_payload_suspension_report.json \
+            --log generated/logs/eclipse_low_power_payload_suspension.txt
+          orbitfabric sim scenarios/adcs_degraded_pointing_payload_inhibit.yaml \
+            --json generated/reports/adcs_degraded_pointing_payload_inhibit_report.json \
+            --log generated/logs/adcs_degraded_pointing_payload_inhibit.txt
+          orbitfabric sim scenarios/delayed_sband_downlink_backlog_pending.yaml \
+            --json generated/reports/delayed_sband_downlink_backlog_pending_report.json \
+            --log generated/logs/delayed_sband_downlink_backlog_pending.txt
+
+      - name: Export scenario index and coverage summary
+        run: |
+          orbitfabric export scenario-run-index \
+            --simulation-reports generated/reports \
+            --json generated/reports/scenario_run_index.json
+          orbitfabric export coverage-summary mission/ \
+            --entity-index generated/reports/entity_index.json \
+            --relationship-manifest generated/reports/relationship_manifest.json \
+            --scenario-run-index generated/reports/scenario_run_index.json \
+            --json generated/reports/coverage_summary.json
+
+      - name: Generate contract-facing artifacts
+        run: |
+          orbitfabric gen docs mission/
+          orbitfabric gen data-flow mission/
+          orbitfabric gen runtime mission/
+          orbitfabric gen ground mission/
+
+      - name: Build tutorial site strictly
+        run: mkdocs build --strict

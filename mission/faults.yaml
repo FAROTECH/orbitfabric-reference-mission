@@ -1,0 +1,78 @@
+faults:
+  - id: eps.battery_critical
+    source: eps
+    severity: critical
+    description: Battery state of charge is below the critical threshold.
+    condition:
+      telemetry: eps.battery.state_of_charge
+      operator: "<"
+      value: 20.0
+      debounce_samples: 2
+    emits:
+      - eps.low_power_warning_raised
+    recovery:
+      mode_transition: SAFE
+      auto_commands:
+        - payload.stop_acquisition
+
+  - id: eps.low_battery_warning
+    source: eps
+    severity: warning
+    description: Battery state of charge is below the low-power warning threshold.
+    condition:
+      telemetry: eps.battery.state_of_charge
+      operator: "<"
+      value: 30.0
+      debounce_samples: 2
+    emits:
+      - eps.low_power_warning_raised
+    recovery:
+      mode_transition: DEGRADED_POWER
+      auto_commands:
+        - payload.stop_acquisition
+
+  - id: adcs.control_degraded
+    source: adcs
+    severity: warning
+    description: ADCS is not in a pointing state suitable for payload acquisition.
+    condition:
+      telemetry: adcs.pointing_status
+      operator: "!="
+      value: NOMINAL
+      debounce_samples: 2
+    emits:
+      - adcs.pointing_degraded
+    recovery:
+      mode_transition: ADCS_DEGRADED
+      auto_commands:
+        - payload.stop_acquisition
+
+  - id: payload.timeout
+    source: radiation_payload
+    severity: error
+    description: Payload acquisition did not complete within the expected operational window.
+    condition:
+      event: payload.acquisition_started
+      occurrences: 1
+      window_s: 900
+    emits:
+      - payload.acquisition_suspended
+    recovery:
+      mode_transition: NOMINAL
+      auto_commands:
+        - payload.stop_acquisition
+
+  - id: data_storage.near_full
+    source: data_storage
+    severity: warning
+    description: Storage usage is above the warning threshold.
+    condition:
+      telemetry: data_storage.used_percent
+      operator: ">"
+      value: 80.0
+      debounce_samples: 2
+    emits:
+      - storage.near_full
+    recovery:
+      mode_transition: NOMINAL
+      auto_commands: []

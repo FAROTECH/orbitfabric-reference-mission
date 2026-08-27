@@ -1,0 +1,39 @@
+/* OrbitFabric Reference Mission documentation refinements.
+ * Keep the Material theme dominant; these rules only improve technical-content density.
+ */
+
+.md-grid {
+  max-width: 1500px;
+}
+
+.md-typeset h1 {
+  font-weight: 650;
+  letter-spacing: -0.02em;
+}
+
+.md-typeset h2 {
+  margin-top: 2.2em;
+}
+
+.md-typeset table:not([class]) {
+  font-size: 0.82rem;
+}
+
+.md-typeset img[src*="assets/studio/"] {
+  display: block;
+  margin: 1.5rem auto 0.65rem;
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: 0.3rem;
+  box-shadow: 0 0.2rem 0.8rem rgba(0, 0, 0, 0.08);
+}
+
+.md-typeset .orbitfabric-lead {
+  max-width: 54rem;
+  margin-bottom: 1.8rem;
+  font-size: 1.08rem;
+  line-height: 1.65;
+}
+
+.md-typeset .grid.cards > ul > li {
+  min-height: 8rem;
+}

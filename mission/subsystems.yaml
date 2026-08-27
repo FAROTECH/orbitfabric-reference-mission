@@ -1,0 +1,42 @@
+subsystems:
+  - id: obc
+    name: On-Board Computer
+    type: command_and_data_handling
+    criticality: critical
+    description: Coordinates mission operations, supervises subsystem state, and stores operational evidence.
+
+  - id: eps
+    name: Electrical Power System
+    type: power_management
+    criticality: critical
+    description: Provides power state, battery telemetry, and low-power operational constraints.
+
+  - id: adcs
+    name: Attitude Determination and Control System
+    type: attitude_control
+    criticality: high
+    description: Provides coarse pointing state and payload acquisition readiness.
+
+  - id: uhf_radio
+    name: UHF Radio
+    type: low_rate_communications
+    criticality: high
+    description: Provides beacon and low-rate housekeeping downlink.
+
+  - id: sband_radio
+    name: S-band Radio
+    type: high_rate_communications
+    criticality: medium
+    description: Provides science data downlink during scheduled contact windows.
+
+  - id: radiation_payload
+    name: Radiation Event Payload
+    type: payload
+    criticality: medium
+    description: NanoSiPM-like payload producing event-rate telemetry and histogram data products.
+
+  - id: data_storage
+    name: Data Storage
+    type: onboard_storage
+    criticality: high
+    description: Stores science, housekeeping, and evidence-oriented products before downlink.

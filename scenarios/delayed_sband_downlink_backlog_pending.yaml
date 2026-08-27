@@ -1,0 +1,98 @@
+scenario:
+  id: delayed_sband_downlink_backlog_pending
+  name: Delayed S-band downlink backlog pending
+  description: >
+    A radiation histogram is generated during nominal payload activity, but no
+    S-band downlink is executed during the scenario. The data product evidence
+    is recorded and the payload histogram backlog remains explicitly pending.
+
+mission:
+  path: ../mission
+
+initial_state:
+  mode: NOMINAL
+  telemetry:
+    eps.battery.voltage: 8.0
+    eps.battery.state_of_charge: 74.0
+    eps.solar.input_power: 4.8
+    obc.cpu_load: 23.0
+    obc.watchdog_reset_counter: 0
+    data_storage.used_percent: 41.0
+    adcs.pointing_status: NOMINAL
+    adcs.angular_rate: 0.2
+    uhf_radio.beacon_state: ENABLED
+    sband_radio.link_state: IDLE
+    radiation_payload.acquisition_active: false
+    radiation_payload.event_rate: 0.0
+    radiation_payload.histogram_ready: false
+    radiation_payload.histogram_pending_bytes: 0
+
+steps:
+  - t: 0
+    expect_mode: NOMINAL
+
+  - t: 5
+    command: payload.start_acquisition
+    args:
+      duration_s: 900
+
+  - t: 6
+    expect_event: payload.acquisition_started
+
+  - t: 7
+    expect_mode: PAYLOAD_ACTIVE
+
+  - t: 10
+    expect:
+      payload_lifecycle:
+        payload: radiation_event_payload
+        state: ACQUIRING
+
+  - t: 30
+    inject:
+      telemetry: radiation_payload.event_rate
+      value: 55.0
+
+  - t: 120
+    command: payload.request_histogram
+
+  - t: 121
+    expect_event: payload.histogram_generated
+
+  - t: 122
+    expect:
+      payload_lifecycle:
+        payload: radiation_event_payload
+        state: HISTOGRAM_READY
+
+  - t: 123
+    inject:
+      telemetry: radiation_payload.histogram_pending_bytes
+      value: 4096
+
+  - t: 124
+    expect_telemetry:
+      radiation_payload.histogram_ready: true
+      radiation_payload.histogram_pending_bytes: 4096
+      sband_radio.link_state: IDLE
+
+  - t: 125
+    expect:
+      data_flow:
+        data_product: radiation_histogram
+        triggered_by_command: payload.request_histogram
+        storage_intent_declared: true
+        downlink_intent_declared: true
+        eligible_downlink_flow: science_priority_flow
+
+  - t: 1800
+    expect_telemetry:
+      radiation_payload.histogram_pending_bytes: 4096
+      sband_radio.link_state: IDLE
+
+  - t: 1801
+    expect_mode: PAYLOAD_ACTIVE
+
+  - t: 1802
+    expect:
+      scenario_status: PASSED

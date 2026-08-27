@@ -1,0 +1,91 @@
+events:
+  - id: obc.health_check_completed
+    source: obc
+    severity: info
+    description: Initial health check completed successfully.
+    downlink_priority: medium
+    persistence: store_and_downlink
+
+  - id: obc.mode_changed
+    source: obc
+    severity: info
+    description: Spacecraft operational mode changed.
+    downlink_priority: high
+    persistence: store_and_downlink
+
+  - id: payload.acquisition_started
+    source: radiation_payload
+    severity: info
+    description: Radiation payload acquisition has started.
+    downlink_priority: medium
+    persistence: store_and_downlink
+
+  - id: payload.acquisition_completed
+    source: radiation_payload
+    severity: info
+    description: Radiation payload acquisition has completed.
+    downlink_priority: medium
+    persistence: store_and_downlink
+
+  - id: payload.histogram_generated
+    source: radiation_payload
+    severity: info
+    description: A radiation histogram data product has been generated.
+    downlink_priority: high
+    persistence: store_and_downlink
+
+  - id: payload.radiation_burst_detected
+    source: radiation_payload
+    severity: warning
+    description: Radiation event rate exceeded the burst threshold.
+    downlink_priority: high
+    persistence: store_and_downlink
+
+  - id: eps.low_power_warning_raised
+    source: eps
+    severity: warning
+    description: EPS reported a low-power warning threshold crossing.
+    downlink_priority: critical
+    persistence: store_and_downlink
+
+  - id: payload.acquisition_suspended
+    source: radiation_payload
+    severity: warning
+    description: Payload acquisition was suspended due to an operational constraint.
+    downlink_priority: high
+    persistence: store_and_downlink
+
+  - id: adcs.pointing_degraded
+    source: adcs
+    severity: warning
+    description: ADCS pointing state is degraded or not ready for payload acquisition.
+    downlink_priority: high
+    persistence: store_and_downlink
+
+  - id: comms.sband_contact_started
+    source: sband_radio
+    severity: info
+    description: Scheduled S-band contact window started.
+    downlink_priority: medium
+    persistence: store_and_downlink
+
+  - id: comms.sband_downlink_started
+    source: sband_radio
+    severity: info
+    description: S-band science downlink started.
+    downlink_priority: medium
+    persistence: store_and_downlink
+
+  - id: comms.sband_downlink_completed
+    source: sband_radio
+    severity: info
+    description: S-band science downlink completed.
+    downlink_priority: medium
+    persistence: store_and_downlink
+
+  - id: storage.near_full
+    source: data_storage
+    severity: warning
+    description: Onboard storage usage is above the warning threshold.
+    downlink_priority: high
+    persistence: store_and_downlink

@@ -1,0 +1,96 @@
+scenario:
+  id: eclipse_low_power_payload_suspension
+  name: Eclipse low-power payload suspension
+  description: >
+    A nominal payload acquisition is interrupted by a low-power condition.
+    The EPS warning fault is triggered after two consecutive low state-of-charge
+    samples, onboard autonomy stops the payload, and the spacecraft transitions
+    to degraded-power operations.
+
+mission:
+  path: ../mission
+
+initial_state:
+  mode: NOMINAL
+  telemetry:
+    eps.battery.voltage: 7.6
+    eps.battery.state_of_charge: 42.0
+    eps.solar.input_power: 0.3
+    obc.cpu_load: 24.0
+    obc.watchdog_reset_counter: 0
+    data_storage.used_percent: 38.0
+    adcs.pointing_status: NOMINAL
+    adcs.angular_rate: 0.3
+    uhf_radio.beacon_state: ENABLED
+    sband_radio.link_state: IDLE
+    radiation_payload.acquisition_active: false
+    radiation_payload.event_rate: 0.0
+    radiation_payload.histogram_ready: false
+    radiation_payload.histogram_pending_bytes: 0
+
+steps:
+  - t: 0
+    expect_mode: NOMINAL
+
+  - t: 5
+    command: payload.start_acquisition
+    args:
+      duration_s: 600
+
+  - t: 6
+    expect_event: payload.acquisition_started
+
+  - t: 7
+    expect_mode: PAYLOAD_ACTIVE
+
+  - t: 10
+    expect:
+      payload_lifecycle:
+        payload: radiation_event_payload
+        state: ACQUIRING
+
+  - t: 30
+    inject:
+      telemetry: radiation_payload.event_rate
+      value: 35.0
+
+  - t: 120
+    inject:
+      telemetry: eps.battery.state_of_charge
+      value: 28.0
+
+  - t: 121
+    expect_mode: PAYLOAD_ACTIVE
+
+  - t: 122
+    inject:
+      telemetry: eps.battery.state_of_charge
+      value: 27.0
+
+  - t: 123
+    expect_event: eps.low_power_warning_raised
+
+  - t: 124
+    expect_mode: DEGRADED_POWER
+
+  - t: 125
+    expect_command:
+      id: payload.stop_acquisition
+      dispatch: AUTO
+
+  - t: 126
+    expect_event: payload.acquisition_completed
+
+  - t: 127
+    expect_telemetry:
+      radiation_payload.acquisition_active: false
+
+  - t: 128
+    expect:
+      payload_lifecycle:
+        payload: radiation_event_payload
+        state: READY
+
+  - t: 129
+    expect:
+      scenario_status: PASSED

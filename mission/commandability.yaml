@@ -1,0 +1,125 @@
+commandability:
+  sources:
+    - id: ground_ops
+      type: ground
+      requires_contact: true
+      contact_profile: reference_ground_station
+      description: Ground operator command source during contact windows.
+
+    - id: onboard_autonomy
+      type: autonomous
+      requires_contact: false
+      description: Onboard autonomy source for protective commands.
+
+  rules:
+    - id: enter_nominal_rule
+      command: obc.enter_nominal
+      sources:
+        - ground_ops
+      allowed_modes:
+        - STANDBY
+        - DEGRADED_POWER
+      confirmation: required
+      timeout_ms: 5000
+      expected_events:
+        - obc.mode_changed
+      expected_effects:
+        mode: NOMINAL
+      description: Transition into nominal operations requires explicit ground confirmation.
+
+    - id: enter_safe_mode_rule
+      command: obc.enter_safe_mode
+      sources:
+        - ground_ops
+        - onboard_autonomy
+      allowed_modes:
+        - STANDBY
+        - NOMINAL
+        - PAYLOAD_ACTIVE
+        - DOWNLINK
+        - DEGRADED_POWER
+        - ADCS_DEGRADED
+      confirmation: required
+      timeout_ms: 5000
+      expected_events:
+        - obc.mode_changed
+      expected_effects:
+        mode: SAFE
+      description: Safe-mode transition requires explicit confirmation semantics.
+
+    - id: start_payload_acquisition_rule
+      command: payload.start_acquisition
+      sources:
+        - ground_ops
+      allowed_modes:
+        - NOMINAL
+      confirmation: required
+      timeout_ms: 10000
+      expected_events:
+        - payload.acquisition_started
+        - obc.mode_changed
+      expected_effects:
+        mode: PAYLOAD_ACTIVE
+      description: Payload acquisition can be started from ground only while the spacecraft is nominal.
+
+    - id: stop_payload_acquisition_rule
+      command: payload.stop_acquisition
+      sources:
+        - ground_ops
+        - onboard_autonomy
+      allowed_modes:
+        - PAYLOAD_ACTIVE
+        - DEGRADED_POWER
+        - ADCS_DEGRADED
+        - SAFE
+      confirmation: hinted
+      timeout_ms: 10000
+      expected_events:
+        - payload.acquisition_completed
+        - obc.mode_changed
+      expected_effects:
+        radiation_payload.acquisition_active: false
+      description: Payload acquisition may be stopped by ground or by onboard protective logic.
+
+    - id: start_sband_downlink_rule
+      command: comms.start_sband_downlink
+      sources:
+        - ground_ops
+      allowed_modes:
+        - NOMINAL
+        - DOWNLINK
+      confirmation: required
+      timeout_ms: 10000
+      expected_events:
+        - comms.sband_downlink_started
+        - obc.mode_changed
+      expected_effects:
+        mode: DOWNLINK
+      description: S-band downlink can be started during ground contact.
+
+  autonomous_actions:
+    - id: auto_stop_payload_on_low_power
+      trigger:
+        fault: eps.low_battery_warning
+      dispatches:
+        command: payload.stop_acquisition
+        source: onboard_autonomy
+      expected_events:
+        - payload.acquisition_completed
+        - obc.mode_changed
+      expected_effects:
+        mode: DEGRADED_POWER
+      description: Onboard autonomy stops payload acquisition when low-power conditions are detected.
+
+  recovery_intents:
+    - id: recover_from_low_power
+      fault: eps.low_battery_warning
+      target_mode: DEGRADED_POWER
+      commands:
+        - payload.stop_acquisition
+      expected_events:
+        - payload.acquisition_completed
+        - obc.mode_changed
+      expected_effects:
+        radiation_payload.acquisition_active: false
+      description: Recovery intent for low-power conditions during payload acquisition.

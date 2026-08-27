@@ -1,0 +1,69 @@
+modes:
+  SAFE:
+    description: Survival-oriented mode with payload acquisition disabled and only essential telemetry active.
+    initial: false
+
+  STANDBY:
+    description: Initial post-boot operational mode used before nominal mission activities are enabled.
+    initial: true
+
+  NOMINAL:
+    description: Standard operations mode with housekeeping, beaconing, and subsystem monitoring active.
+    initial: false
+
+  PAYLOAD_ACTIVE:
+    description: Science acquisition mode where the radiation payload is enabled and data generation is expected.
+    initial: false
+
+  DOWNLINK:
+    description: Contact-oriented mode where stored telemetry and science data products are downlinked.
+    initial: false
+
+  DEGRADED_POWER:
+    description: Reduced-power mode entered after low battery conditions or constrained energy availability.
+    initial: false
+
+  ADCS_DEGRADED:
+    description: Reduced pointing capability mode where payload acquisition may be inhibited.
+    initial: false
+
+mode_transitions:
+  - from: STANDBY
+    to: NOMINAL
+    reason: commissioning_health_check_passed
+    description: The spacecraft leaves initial standby after essential health telemetry is nominal.
+
+  - from: NOMINAL
+    to: PAYLOAD_ACTIVE
+    reason: payload_acquisition_command_accepted
+    description: Payload acquisition is enabled from nominal operations.
+
+  - from: PAYLOAD_ACTIVE
+    to: NOMINAL
+    reason: payload_acquisition_completed
+    description: Payload acquisition completed and the spacecraft returns to nominal operations.
+
+  - from: PAYLOAD_ACTIVE
+    to: DEGRADED_POWER
+    reason: low_power_threshold_reached
+    description: Payload activity is suspended because the EPS reports insufficient power margin.
+
+  - from: NOMINAL
+    to: DOWNLINK
+    reason: sband_contact_window_started
+    description: The spacecraft enters downlink mode during a scheduled S-band contact window.
+
+  - from: DOWNLINK
+    to: NOMINAL
+    reason: sband_contact_window_ended
+    description: The spacecraft exits downlink mode after the contact window closes.
+
+  - from: PAYLOAD_ACTIVE
+    to: ADCS_DEGRADED
+    reason: pointing_not_ready
+    description: Payload acquisition is inhibited when ADCS pointing capability is degraded.
+
+  - from: NOMINAL
+    to: SAFE
+    reason: critical_fault_detected
+    description: A critical fault forces the spacecraft into survival-oriented safe mode.
