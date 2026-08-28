@@ -1,0 +1,45 @@
+name: Documentation feedback
+description: Report unclear, missing or outdated Reference Mission documentation
+title: "docs: "
+labels: ["documentation"]
+body:
+  - type: textarea
+    id: page
+    attributes:
+      label: Documentation page or section
+      description: Link or name the affected page, tutorial step or file.
+    validations:
+      required: true
+  - type: textarea
+    id: issue
+    attributes:
+      label: What is unclear, missing or outdated?
+    validations:
+      required: true
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: Suggested improvement
+      description: Propose wording, structure or additional context if useful.
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Impact
+      options:
+        - Minor wording issue
+        - Missing explanation
+        - Outdated Core information
+        - Outdated Studio information
+        - Incorrect technical statement
+        - Misleading architectural boundary
+        - Broken documentation navigation or rendering
+        - Other
+    validations:
+      required: true
+  - type: checkboxes
+    id: clean-room
+    attributes:
+      label: Clean-room confirmation
+      options:
+        - label: This issue does not include proprietary, confidential, export-controlled or NDA-protected material.
+          required: true
