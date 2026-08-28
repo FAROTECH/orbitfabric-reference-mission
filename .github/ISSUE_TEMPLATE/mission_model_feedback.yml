@@ -1,0 +1,67 @@
+name: Reference Mission model feedback
+description: Suggest a change or clarification to the reference mission model
+title: "model: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form for feedback on the OrbitFabric Reference Mission model.
+
+        Keep examples synthetic or based only on public information. Changes that require new OrbitFabric Core semantics should normally be proposed in the Core repository first.
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What part of the Reference Mission should be changed or clarified?
+    validations:
+      required: true
+  - type: dropdown
+    id: domain
+    attributes:
+      label: Mission domain
+      multiple: true
+      options:
+        - spacecraft
+        - subsystems
+        - modes
+        - telemetry
+        - commands
+        - events
+        - faults
+        - packets
+        - policies
+        - payloads
+        - data_products
+        - contacts
+        - commandability
+        - scenarios
+        - Core inspection surfaces
+        - Studio walkthrough
+        - other
+    validations:
+      required: true
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Engineering motivation
+      description: Explain why the current reference behavior or explanation should change.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed change
+      description: Include example YAML only when it is synthetic or public-material-derived.
+  - type: textarea
+    id: impact
+    attributes:
+      label: Expected impact
+      description: Note any expected effect on scenarios, generated evidence, documentation or Studio exploration.
+  - type: checkboxes
+    id: clean-room
+    attributes:
+      label: Clean-room confirmation
+      options:
+        - label: This issue does not include proprietary, confidential, export-controlled or NDA-protected material.
+          required: true
