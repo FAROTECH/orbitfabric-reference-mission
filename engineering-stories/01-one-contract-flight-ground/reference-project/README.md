@@ -34,11 +34,22 @@ telemetry: radiation_payload.acquisition_active
 The project is validated on Ubuntu through GitHub Actions. For local reproduction you need:
 
 - Git
-- Python 3 with `venv` support; Python 3.12 matches the accepted proof environment
+- Python 3.12.x with `venv` support
 - a normal native build toolchain suitable for F Prime
 - Docker with Docker Compose v2 for the `live` proof
 
-The runner creates its own Python virtual environment and clones every pinned dependency under `.work/`. It does not modify the Reference Mission source.
+Python 3.12 is part of the accepted proof environment. The pinned OpenC3 F Prime parser uses Python 3.12 f-string grammar, so Python 3.11 is not a supported reproduction environment for this Reference Project.
+
+The runner prefers `python3.12`, then accepts `python3` only when it is Python 3.12.x. A specific interpreter can be selected with:
+
+```bash
+ORBITFABRIC_REFERENCE_PYTHON=/path/to/python3.12 \
+  ./engineering-stories/01-one-contract-flight-ground/reference-project/run_reference_project.sh static
+```
+
+If `.work/venv` was previously created with another Python version, the runner removes that incompatible virtual environment and recreates it with Python 3.12.
+
+The runner clones every pinned dependency under `.work/`. It does not modify the Reference Mission source.
 
 ## Quick start
 
