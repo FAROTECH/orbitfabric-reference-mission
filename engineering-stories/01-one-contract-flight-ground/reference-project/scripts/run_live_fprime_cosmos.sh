@@ -120,14 +120,6 @@ FPRIME_BIN="$(find "${REF_DIR}" -type f -path '*/bin/Ref' -perm -111 -print -qui
 test -n "${FPRIME_BIN}"
 printf '%s\n' "${FPRIME_BIN}" >"${EVIDENCE_DIR}/fprime-binary.txt"
 
-log "starting native F Prime target on TCP 50000"
-"${FPRIME_BIN}" -a 0.0.0.0 -p 50000 \
-  >"${EVIDENCE_DIR}/fprime.stdout" 2>"${EVIDENCE_DIR}/fprime.stderr" &
-FPRIME_PID=$!
-# TcpServer is a single-client endpoint. Verify LISTEN state passively so readiness
-# checking does not consume and immediately close the first accepted connection.
-wait_listener 50000
-
 log "preparing isolated COSMOS runtime"
 (cd "${COSMOS_PROJECT_DIR}" && ./openc3.sh cleanup local force) >/dev/null 2>&1 || true
 (cd "${COSMOS_PROJECT_DIR}" && ./openc3.sh run) >"${EVIDENCE_DIR}/cosmos-start.log" 2>&1
@@ -177,6 +169,18 @@ GEM="${PLUGIN_DIR}/openc3-cosmos-fprime-${PLUGIN_VERSION}.gem"
 test -f "${GEM}"
 cosmos_cli "${PLUGIN_DIR}" validate "$(basename "${GEM}")" DEFAULT >"${EVIDENCE_DIR}/plugin-validate.log" 2>&1
 cosmos_cli "${PLUGIN_DIR}" load "$(basename "${GEM}")" DEFAULT >"${EVIDENCE_DIR}/plugin-load.log" 2>&1
+
+# FPRIME_INT is allowed to enter ATTEMPTING while the native peer is absent.
+# OpenC3 retries failed interface connections. Start the single-client F Prime
+# TcpServer only after plugin installation has completed so transient interface
+# bootstrap cannot consume the one accepted flight-side connection.
+log "starting native F Prime target on TCP 50000 after COSMOS plugin bootstrap"
+"${FPRIME_BIN}" -a 0.0.0.0 -p 50000 \
+  >"${EVIDENCE_DIR}/fprime.stdout" 2>"${EVIDENCE_DIR}/fprime.stderr" &
+FPRIME_PID=$!
+# Verify LISTEN state passively so readiness checking does not consume and
+# immediately close the first accepted connection.
+wait_listener 50000
 
 # Plugin load is not equivalent to runtime readiness. The OpenC3 operator starts
 # FPRIME_INT asynchronously, so wait for the native interface to establish its
