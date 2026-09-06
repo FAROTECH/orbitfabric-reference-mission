@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Materialize the R1 Story-owned F Prime runtime fixture.
+"""Materialize the R1 Reference Project F Prime runtime fixture.
 
 This script does not generate flight behavior from OrbitFabric semantics. It composes
 adapter-produced FPP declarations into a F Prime deployment fixture and supplies the
@@ -45,7 +45,7 @@ def remove_line_once(path: Path, line: str) -> None:
 
 def remove_instance_block(path: Path, instance: str) -> None:
     # F Prime Ref instance declarations end at the first blank line. This deliberately
-    # operates on the copied Story fixture, never on the upstream checkout.
+    # operates on the copied Reference Project fixture, never on the upstream checkout.
     regex_remove_once(
         path,
         rf"^  instance {re.escape(instance)}:.*?(?:\n\n)",
@@ -116,7 +116,7 @@ def materialize_payload_component(project: Path, projection: Path) -> None:
         "PayloadComponentComponentImpl::~PayloadComponentComponentImpl() {}\n\n"
         "void PayloadComponentComponentImpl::OF_StopAcquisition_cmdHandler(\n"
         "    FwOpcodeType opCode, U32 cmdSeq) {\n"
-        "    // Story-owned target behavior. OrbitFabric does not generate this implementation.\n"
+        "    // Reference Project target behavior. OrbitFabric does not generate this implementation.\n"
         "    this->tlmWrite_OF_AcquisitionActive(false);\n"
         "    this->cmdResponse_out(opCode, cmdSeq, Fw::CmdResponse::OK);\n"
         "}\n"
@@ -275,7 +275,7 @@ def main() -> int:
     )
     with (deployment / "Top/CMakeLists.txt").open("a", encoding="utf-8") as stream:
         stream.write(
-            "\n# R1 Story fixture: prefer copied implementation headers.\n"
+            "\n# R1 Reference Project fixture: prefer copied implementation headers.\n"
             'target_include_directories(Ref_Top BEFORE PRIVATE "${FPRIME_PROJECT_ROOT}")\n'
         )
 
@@ -302,7 +302,7 @@ def main() -> int:
     replace_once(
         packets,
         "\n} omit {\n",
-        "\n  # Story-owned downstream packet allocation. OrbitFabric projects the\n"
+        "\n  # Reference Project downstream packet allocation. OrbitFabric projects the\n"
         "  # channel declaration; the F Prime deployment owns packet placement.\n"
         "  packet PayloadTlm id 38 group 3 {\n"
         "    payload.OF_AcquisitionActive\n"
@@ -332,7 +332,7 @@ def main() -> int:
             "telemetry": "Ref.payload.OF_AcquisitionActive",
         },
         "fixture_behavior": (
-            "On OF_StopAcquisition the Story-owned F Prime implementation writes "
+            "On OF_StopAcquisition the Reference Project F Prime implementation writes "
             "OF_AcquisitionActive=false and returns command OK."
         ),
         "telemetry_packet_allocation": {
@@ -353,7 +353,7 @@ def main() -> int:
         },
         "ownership_note": (
             "The behavior, telemetry packet placement, and narrowing of unrelated Ref "
-            "demo content are downstream example-fixture choices, not behavior or "
+            "demo content are Reference Project fixture choices, not behavior or "
             "deployment generated from OrbitFabric mission semantics."
         ),
     }
@@ -361,7 +361,7 @@ def main() -> int:
         json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8"
     )
 
-    print("materialized Engineering Story 01 F Prime fixture")
+    print("materialized Engineering Story 01 Reference Project F Prime fixture")
     return 0
 
 
