@@ -156,6 +156,7 @@ def main() -> int:
 
     instances = deployment / "Top/instances.fpp"
     topology = deployment / "Top/topology.fpp"
+    packets = deployment / "Top/RefPackets.fppi"
     root_cmake = deployment / "CMakeLists.txt"
 
     append_before_last_brace(
@@ -169,6 +170,16 @@ def main() -> int:
         topology,
         "    instance pingRcvr\n",
         "    instance pingRcvr\n    instance payload\n",
+    )
+    replace_once(
+        packets,
+        "\n} omit {\n",
+        "\n  # Story-owned downstream packet allocation. OrbitFabric projects the\n"
+        "  # channel declaration; the F Prime deployment owns packet placement.\n"
+        "  packet PayloadTlm id 38 group 3 {\n"
+        "    payload.OF_AcquisitionActive\n"
+        "  }\n\n"
+        "} omit {\n",
     )
     replace_once(
         root_cmake,
@@ -196,9 +207,17 @@ def main() -> int:
             "On OF_StopAcquisition the Story-owned F Prime implementation writes "
             "OF_AcquisitionActive=false and returns command OK."
         ),
+        "telemetry_packet_allocation": {
+            "packet": "PayloadTlm",
+            "id": 38,
+            "group": 3,
+            "channel": "payload.OF_AcquisitionActive",
+            "ownership": "F Prime deployment fixture",
+        },
         "ownership_note": (
-            "The behavior above is downstream example implementation, not behavior "
-            "generated from OrbitFabric expected_effects."
+            "The behavior and telemetry packet placement above are downstream example "
+            "implementation choices, not behavior or packet allocation generated from "
+            "OrbitFabric mission semantics."
         ),
     }
     (project / "ENGINEERING_STORY_FIXTURE.json").write_text(
