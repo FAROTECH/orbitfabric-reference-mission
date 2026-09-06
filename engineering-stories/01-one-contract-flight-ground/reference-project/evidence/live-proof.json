@@ -8,5 +8,5 @@
   "command": "Ref.payload.OF_StopAcquisition",
   "telemetry_packet": "Ref.payload.OF_AcquisitionActive",
   "telemetry_item": "OF_AcquisitionActive",
-  "script_runner_id": 1
+  "script_runner_id": 2
 }
