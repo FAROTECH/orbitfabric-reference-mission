@@ -65,6 +65,9 @@ jobs:
           orbitfabric sim scenarios/delayed_sband_downlink_backlog_pending.yaml \
             --json generated/reports/delayed_sband_downlink_backlog_pending_report.json \
             --log generated/logs/delayed_sband_downlink_backlog_pending.txt
+          orbitfabric sim scenarios/payload_stop_acquisition_verification.yaml \
+            --json generated/reports/payload_stop_acquisition_verification_report.json \
+            --log generated/logs/payload_stop_acquisition_verification.txt
 
       - name: Export scenario index and coverage summary
         run: |
