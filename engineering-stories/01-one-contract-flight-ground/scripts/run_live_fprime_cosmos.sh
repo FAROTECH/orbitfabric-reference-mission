@@ -26,8 +26,28 @@ export OPENC3_GROUP_ID="$(id -g)"
 
 log() { printf '[r1-live] %s\n' "$*"; }
 
+compose_args() {
+  COMPOSE_ARGS=(docker compose --project-directory "${COSMOS_PROJECT_DIR}" --env-file "${COSMOS_PROJECT_DIR}/.env")
+  if [[ -f "${COSMOS_PROJECT_DIR}/.env.local" ]]; then
+    COMPOSE_ARGS+=(--env-file "${COSMOS_PROJECT_DIR}/.env.local")
+  fi
+  COMPOSE_ARGS+=(-f "${COSMOS_PROJECT_DIR}/compose.yaml")
+  if [[ -f "${COSMOS_PROJECT_DIR}/compose.override.yaml" ]]; then
+    COMPOSE_ARGS+=(-f "${COSMOS_PROJECT_DIR}/compose.override.yaml")
+  fi
+}
+
+capture_cosmos_diagnostics() {
+  compose_args
+  (cd "${COSMOS_PROJECT_DIR}" && "${COMPOSE_ARGS[@]}" ps -a) \
+    >"${EVIDENCE_DIR}/cosmos-ps.txt" 2>&1 || true
+  (cd "${COSMOS_PROJECT_DIR}" && "${COMPOSE_ARGS[@]}" logs --no-color --timestamps) \
+    >"${EVIDENCE_DIR}/cosmos-runtime.log" 2>&1 || true
+}
+
 cleanup() {
   status=$?
+  capture_cosmos_diagnostics
   if [[ -n "${FPRIME_PID}" ]] && kill -0 "${FPRIME_PID}" 2>/dev/null; then
     kill "${FPRIME_PID}" 2>/dev/null || true
     wait "${FPRIME_PID}" 2>/dev/null || true
@@ -42,15 +62,8 @@ trap cleanup EXIT INT TERM
 cosmos_cli() {
   local local_dir="$1"
   shift
-  local args=(docker compose --project-directory "${COSMOS_PROJECT_DIR}" --env-file "${COSMOS_PROJECT_DIR}/.env")
-  if [[ -f "${COSMOS_PROJECT_DIR}/.env.local" ]]; then
-    args+=(--env-file "${COSMOS_PROJECT_DIR}/.env.local")
-  fi
-  args+=(-f "${COSMOS_PROJECT_DIR}/compose.yaml")
-  if [[ -f "${COSMOS_PROJECT_DIR}/compose.override.yaml" ]]; then
-    args+=(-f "${COSMOS_PROJECT_DIR}/compose.override.yaml")
-  fi
-  (cd "${local_dir}" && "${args[@]}" run -T --rm \
+  compose_args
+  (cd "${local_dir}" && "${COMPOSE_ARGS[@]}" run -T --rm \
     -v "$(pwd):/openc3/local:z" -w /openc3/local \
     -e OPENC3_API_PASSWORD="${OPENC3_API_PASSWORD}" --no-deps \
     openc3-cosmos-cmd-tlm-api ruby /openc3/bin/openc3cli "$@")
@@ -64,16 +77,23 @@ wait_http() {
   return 1
 }
 
-wait_port() {
-  python - "$1" "$2" <<'PY'
-import socket, sys, time
-host, port = sys.argv[1], int(sys.argv[2])
+wait_listener() {
+  python - "$1" <<'PY'
+import sys, time
+port_hex = f"{int(sys.argv[1]):04X}"
 for _ in range(60):
-    try:
-        with socket.create_connection((host, port), timeout=1):
-            raise SystemExit(0)
-    except OSError:
-        time.sleep(1)
+    for source in ("/proc/net/tcp", "/proc/net/tcp6"):
+        try:
+            lines = open(source, encoding="ascii").read().splitlines()[1:]
+        except OSError:
+            continue
+        for line in lines:
+            fields = line.split()
+            local_address = fields[1]
+            state = fields[3]
+            if local_address.rsplit(":", 1)[-1].upper() == port_hex and state == "0A":
+                raise SystemExit(0)
+    time.sleep(1)
 raise SystemExit(1)
 PY
 }
@@ -87,7 +107,9 @@ log "starting native F Prime target on TCP 50000"
 "${FPRIME_BIN}" -a 0.0.0.0 -p 50000 \
   >"${EVIDENCE_DIR}/fprime.stdout" 2>"${EVIDENCE_DIR}/fprime.stderr" &
 FPRIME_PID=$!
-wait_port 127.0.0.1 50000
+# TcpServer is a single-client endpoint. Verify LISTEN state passively so readiness
+# checking does not consume and immediately close the first accepted connection.
+wait_listener 50000
 
 log "preparing isolated COSMOS runtime"
 (cd "${COSMOS_PROJECT_DIR}" && ./openc3.sh cleanup local force) >/dev/null 2>&1 || true
