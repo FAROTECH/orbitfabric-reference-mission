@@ -2,20 +2,21 @@
 """Materialize the R1 Story-owned F Prime runtime fixture.
 
 This script does not generate flight behavior from OrbitFabric semantics. It composes
-adapter-produced FPP declarations into a F Prime reference deployment fixture and
-supplies the one explicit downstream behavior required by Engineering Story 01:
+adapter-produced FPP declarations into a F Prime deployment fixture and supplies the
+one explicit downstream behavior required by Engineering Story 01:
 
     OF_StopAcquisition -> OF_AcquisitionActive = false
 
-The upstream Ref deployment is deliberately narrowed where unrelated demo content
-prevents downstream dictionary consumers from processing the Story slice. Such
-narrowing is target-fixture ownership and does not alter OrbitFabric semantics.
+The pinned F Prime Ref deployment is used only as a native infrastructure host. Demo
+application components unrelated to the Story slice are removed *before* native F
+Prime generation. The resulting F Prime dictionary is never filtered or rewritten.
 """
 
 from __future__ import annotations
 
 import argparse
 import json
+import re
 import shutil
 import subprocess
 from pathlib import Path
@@ -28,6 +29,36 @@ def replace_once(path: Path, old: str, new: str) -> None:
     if text.count(old) != 1:
         raise RuntimeError(f"{path}: expected one patch anchor: {old!r}")
     path.write_text(text.replace(old, new, 1), encoding="utf-8")
+
+
+def regex_remove_once(path: Path, pattern: str, *, label: str) -> None:
+    text = path.read_text(encoding="utf-8")
+    updated, count = re.subn(pattern, "", text, count=1, flags=re.MULTILINE | re.DOTALL)
+    if count != 1:
+        raise RuntimeError(f"{path}: expected one removable {label}, found {count}")
+    path.write_text(updated, encoding="utf-8")
+
+
+def remove_line_once(path: Path, line: str) -> None:
+    replace_once(path, line, "")
+
+
+def remove_instance_block(path: Path, instance: str) -> None:
+    # F Prime Ref instance declarations end at the first blank line. This deliberately
+    # operates on the copied Story fixture, never on the upstream checkout.
+    regex_remove_once(
+        path,
+        rf"^  instance {re.escape(instance)}:.*?(?:\n\n)",
+        label=f"instance block {instance}",
+    )
+
+
+def remove_packet(path: Path, packet: str) -> None:
+    regex_remove_once(
+        path,
+        rf"^  packet {re.escape(packet)} id .*?^  \}}\n\n",
+        label=f"telemetry packet {packet}",
+    )
 
 
 def append_before_last_brace(path: Path, block: str) -> None:
@@ -112,6 +143,98 @@ def materialize_payload_component(project: Path, projection: Path) -> None:
     )
 
 
+def narrow_ref_demo_content(deployment: Path) -> list[str]:
+    """Remove upstream sample-application content unrelated to R1.
+
+    The native framework/subtopology infrastructure remains intact. The removed
+    components are F Prime Ref *demo payloads*, not runtime infrastructure needed for
+    command dispatch, telemetry, time, scheduling, or communication.
+    """
+
+    instances = deployment / "Top/instances.fpp"
+    topology = deployment / "Top/topology.fpp"
+    packets = deployment / "Top/RefPackets.fppi"
+    root_cmake = deployment / "CMakeLists.txt"
+
+    removed: list[str] = []
+
+    # TypeDemo exercises arrays of user-defined enums and many scalar types. It is
+    # unrelated to R1 and independently exposed the OpenC3 parser limitation tracked
+    # in Architecture Lab Investigation 015.
+    remove_instance_block(instances, "typeDemo")
+    remove_line_once(topology, "    instance typeDemo\n")
+    remove_line_once(root_cmake, 'add_fprime_subdirectory("${CMAKE_CURRENT_LIST_DIR}/TypeDemo/")\n')
+    remove_packet(packets, "TypeDemo")
+    removed.append("Ref.TypeDemo")
+
+    # SignalGen is another Ref sample payload. Its PairHistory channels are arrays of
+    # the user-defined Ref.SignalPair struct and independently reproduce the same
+    # downstream OpenC3 array-resolution limitation. None of SG1..SG5 participates in
+    # the R1 stop-acquisition proof.
+    for instance in ("SG1", "SG2", "SG3", "SG4", "SG5"):
+        remove_instance_block(instances, instance)
+        remove_line_once(topology, f"    instance {instance}\n")
+
+    remove_line_once(root_cmake, 'add_fprime_subdirectory("${CMAKE_CURRENT_LIST_DIR}/SignalGen/")\n')
+
+    for connection in (
+        "      rateGroup1Comp.RateGroupMemberOut[0] -> SG1.schedIn\n",
+        "      rateGroup1Comp.RateGroupMemberOut[1] -> SG2.schedIn\n",
+        "      rateGroup2Comp.RateGroupMemberOut[2] -> SG3.schedIn\n",
+        "      rateGroup2Comp.RateGroupMemberOut[3] -> SG4.schedIn\n",
+        "      rateGroup3Comp.RateGroupMemberOut[1] -> SG5.schedIn\n",
+    ):
+        remove_line_once(topology, connection)
+
+    signal_data_product_block = """      ### Moved this out of DataProducts Subtopology --> anything specific to deployment should live in Ref connections
+      # Synchronous request. Will have both request kinds for demo purposes, not typical
+      SG1.productGetOut -> DataProducts.Subtopology.productGetIn
+      # Asynchronous request
+      SG1.productRequestOut -> DataProducts.Subtopology.productRequestIn
+      DataProducts.Subtopology.productResponseOut -> SG1.productRecvIn
+      # Send filled DP
+      SG1.productSendOut -> DataProducts.Subtopology.productSendIn
+"""
+    replace_once(topology, signal_data_product_block, "")
+
+    for packet in (
+        "SigGenSum",
+        "SigGen1Info",
+        "SigGen2Info",
+        "SigGen3Info",
+        "SigGen4Info",
+        "SigGen5Info",
+        "SigGen1",
+        "SigGen2",
+        "SigGen3",
+        "SigGen4",
+        "SigGen5",
+    ):
+        remove_packet(packets, packet)
+    removed.append("Ref.SignalGen (SG1..SG5)")
+
+    # DpDemo is a data-product sample with multiple nested/array user-defined types.
+    # The standard DataProducts subtopology is retained; only this sample producer is
+    # removed because it has no role in R1.
+    remove_instance_block(instances, "dpDemo")
+    remove_line_once(topology, "    instance dpDemo\n")
+    remove_line_once(root_cmake, 'add_fprime_subdirectory("${CMAKE_CURRENT_LIST_DIR}/DpDemo/")\n')
+    remove_line_once(topology, "      rateGroup2Comp.RateGroupMemberOut[4] -> dpDemo.run\n")
+
+    dp_demo_connections = """      # Synchronous request
+      dpDemo.productGetOut -> DataProducts.Subtopology.productGetIn
+      # Send filled DP
+      dpDemo.productSendOut -> DataProducts.Subtopology.productSendIn
+      # Asynchronous request
+      dpDemo.productRequestOut -> DataProducts.Subtopology.productRequestIn
+      DataProducts.Subtopology.productResponseOut -> dpDemo.productRecvIn
+"""
+    replace_once(topology, dp_demo_connections, "")
+    removed.append("Ref.DpDemo")
+
+    return removed
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--fprime-root", type=Path, required=True)
@@ -156,57 +279,13 @@ def main() -> int:
             'target_include_directories(Ref_Top BEFORE PRIVATE "${FPRIME_PROJECT_ROOT}")\n'
         )
 
+    removed_demo_content = narrow_ref_demo_content(deployment)
     materialize_payload_component(project, projection)
 
     instances = deployment / "Top/instances.fpp"
     topology = deployment / "Top/topology.fpp"
     packets = deployment / "Top/RefPackets.fppi"
     root_cmake = deployment / "CMakeLists.txt"
-
-    # TypeDemo is an unrelated F Prime sample component. Its array-of-enum command
-    # parameters are outside this Story and are not consumable by the pinned/current
-    # OpenC3 F Prime parser. Remove the sample from the native deployment rather than
-    # filtering or rewriting the native dictionary after F Prime has produced it.
-    replace_once(
-        instances,
-        "  instance typeDemo: Ref.TypeDemo base id 0x10005000\n\n",
-        "",
-    )
-    replace_once(
-        topology,
-        "    instance typeDemo\n",
-        "",
-    )
-    replace_once(
-        root_cmake,
-        'add_fprime_subdirectory("${CMAKE_CURRENT_LIST_DIR}/TypeDemo/")\n',
-        "",
-    )
-    type_demo_packet = """  packet TypeDemo id 20 group 3 {
-    typeDemo.ChoiceCh
-    typeDemo.ChoicesCh
-    typeDemo.ExtraChoicesCh
-    typeDemo.ChoicePairCh
-    typeDemo.ChoiceSlurryCh
-    typeDemo.Float1Ch
-    typeDemo.Float2Ch
-    typeDemo.Float3Ch
-    typeDemo.FloatSet
-    typeDemo.ScalarStructCh
-    typeDemo.ScalarU8Ch
-    typeDemo.ScalarU16Ch
-    typeDemo.ScalarU32Ch
-    typeDemo.ScalarU64Ch
-    typeDemo.ScalarI8Ch
-    typeDemo.ScalarI16Ch
-    typeDemo.ScalarI32Ch
-    typeDemo.ScalarI64Ch
-    typeDemo.ScalarF32Ch
-    typeDemo.ScalarF64Ch
-  }
-
-"""
-    replace_once(packets, type_demo_packet, "")
 
     append_before_last_brace(
         instances,
@@ -239,9 +318,9 @@ def main() -> int:
 
     manifest = {
         "kind": "orbitfabric.reference_mission.engineering_story_01.fprime_fixture",
-        "version": "0.1-candidate",
+        "version": "0.2-candidate",
         "fprime_commit": actual,
-        "host_deployment": "Ref",
+        "host_deployment": "Ref infrastructure, narrowed before native generation",
         "component": "Reference.PayloadComponent",
         "instance": "payload",
         "source_bindings": {
@@ -264,16 +343,18 @@ def main() -> int:
             "ownership": "F Prime deployment fixture",
         },
         "excluded_upstream_demo_content": {
-            "components": ["Ref.TypeDemo"],
+            "components": removed_demo_content,
             "reason": (
-                "Unrelated F Prime sample content. Its array-of-enum command parameters "
-                "are outside the R1 semantic slice and are not consumable by the "
-                "OpenC3 F Prime parser. The native dictionary is not filtered or patched."
+                "Unrelated F Prime Ref sample-application content with no role in the R1 "
+                "semantic slice. TypeDemo and SignalGen also exposed the qualified-array "
+                "parser limitation tracked separately in Architecture Lab Investigation 015. "
+                "Removal occurs before native F Prime generation; the resulting native "
+                "dictionary is not filtered or patched."
             ),
         },
         "ownership_note": (
             "The behavior, telemetry packet placement, and narrowing of unrelated Ref "
-            "demo content above are downstream example-fixture choices, not behavior or "
+            "demo content are downstream example-fixture choices, not behavior or "
             "deployment generated from OrbitFabric mission semantics."
         ),
     }
