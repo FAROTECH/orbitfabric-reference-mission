@@ -31,6 +31,13 @@ jobs:
           ref: 598f0ca09a39c10b17e3c588d0f2c7112fe52e06
           path: _r1/fprime-adapter
 
+      - name: Checkout exact OrbitFabric OpenC3 COSMOS adapter
+        uses: actions/checkout@v4
+        with:
+          repository: FAROTECH/orbitfabric-openc3-cosmos-adapter
+          ref: 1e6f477ba0571996fa72dfd0b719a522dcc84ff1
+          path: _r1/cosmos-adapter
+
       - name: Checkout exact F Prime
         uses: actions/checkout@v4
         with:
@@ -69,12 +76,21 @@ jobs:
           test "$(git -C _r1/fpp rev-list -n 1 v3.2.0)" = "93f484b7521a8e8894cba25b26e633cc87d8e37a"
           python -m pip install ./_r1/core
           python -m pip install ./_r1/fprime-adapter
+          # Keep the Story on Core v1.3.0. The COSMOS adapter release metadata pins
+          # an older Core baseline, so install the exact adapter source without
+          # allowing pip to replace the already-pinned Story Core runtime.
+          python -m pip install --no-deps ./_r1/cosmos-adapter
+          python -m pip install 'PyYAML>=6.0' 'jsonschema>=4.23' 'rfc8785>=0.1.4'
           orbitfabric --version
           orbitfabric-fprime --version
+          orbitfabric-openc3-cosmos --help >/dev/null
           python - <<'PY'
           import importlib.metadata
           import sys
           print("python", sys.version.split()[0])
+          print("orbitfabric", importlib.metadata.version("orbitfabric"))
+          print("orbitfabric-fprime-adapter", importlib.metadata.version("orbitfabric-fprime-adapter"))
+          print("orbitfabric-openc3-cosmos-adapter", importlib.metadata.version("orbitfabric-openc3-cosmos-adapter"))
           print("fprime-tools", importlib.metadata.version("fprime-tools"))
           print("fprime-fpp", importlib.metadata.version("fprime-fpp"))
           PY
@@ -149,10 +165,64 @@ jobs:
           cp _r1/work/openc3-fprime/generated-target/tlm.txt \
             _r1/work/evidence/openc3-fprime-tlm.txt
 
-      - name: Upload D2-D3 evidence
+      - name: Project canonical Scenario into COSMOS verification intent
+        run: |
+          orbitfabric-openc3-cosmos run \
+            --operation verification_projection \
+            --input-set-manifest _r1/work/input-set/integration_input_manifest.json \
+            --profile engineering-stories/01-one-contract-flight-ground/example/profiles/cosmos.yaml \
+            --operation-input scenario scenarios/payload_stop_acquisition_verification.yaml \
+            --output-dir _r1/work/cosmos-projection
+
+          cp _r1/work/cosmos-projection/integration_result.json \
+            _r1/work/evidence/cosmos-integration-result.json
+          cp _r1/work/cosmos-projection/verification_projection/verification_projection_plan.json \
+            _r1/work/evidence/cosmos-verification-plan.json
+          cp _r1/work/cosmos-projection/verification_projection/cosmos/verification.py \
+            _r1/work/evidence/cosmos-verification.py
+          cp _r1/work/cosmos-projection/verification_projection/cosmos/verification_suite.py \
+            _r1/work/evidence/cosmos-verification-suite.py
+
+      - name: Verify COSMOS projection uses F Prime resolved identities
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          plan = json.loads(Path('_r1/work/evidence/cosmos-verification-plan.json').read_text())
+          assert plan['status'] == 'executable_subset', plan['status']
+
+          operations = plan['operations']
+          send = [x for x in operations if x['operation'] == 'send_command']
+          waits = [x for x in operations if x['operation'] == 'wait_telemetry']
+          assert len(send) == 1, send
+          assert len(waits) == 1, waits
+          assert send[0]['resolved']['target'] == 'FPRIME'
+          assert send[0]['resolved']['command'] == 'Ref.payload.OF_StopAcquisition'
+          assert waits[0]['resolved']['target'] == 'FPRIME'
+          assert waits[0]['resolved']['packet'] == 'Ref.payload.OF_AcquisitionActive'
+          assert waits[0]['resolved']['item'] == 'OF_AcquisitionActive'
+          assert waits[0]['resolved']['expected_value'] == 0
+
+          atoms = plan['atoms']
+          not_projected = {x['kind'] for x in atoms if x['disposition'] == 'not_projected'}
+          for required in ('initial_mode', 'initial_telemetry', 'expect_event',
+                           'expect_payload_lifecycle', 'expect_scenario_status'):
+              assert required in not_projected, (required, not_projected)
+
+          procedure = Path('_r1/work/evidence/cosmos-verification.py').read_text()
+          assert "cmd('FPRIME Ref.payload.OF_StopAcquisition')" in procedure
+          assert (
+              "wait_check('FPRIME Ref.payload.OF_AcquisitionActive "
+              "OF_AcquisitionActive == 0', 5, type='RAW')"
+          ) in procedure
+          print('COSMOS canonical Scenario projection PASS')
+          PY
+
+      - name: Upload D2-D5 evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: r1-fprime-dictionary-openc3-evidence
+          name: r1-flight-ground-proof-evidence
           path: _r1/work/evidence
           if-no-files-found: warn
