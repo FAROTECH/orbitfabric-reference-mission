@@ -2,7 +2,7 @@
   "kind": "orbitfabric.reference_mission.engineering_story_01.accepted_baseline",
   "version": "1.0",
   "status": "passed",
-  "accepted_reference_project_commit": "566e377cab1c9fda0ba4005c5974502ed23e59c5",
+  "accepted_reference_project_commit": "d66f6068235d425bdc2335d4b0cb09a58e70c1de",
   "canonical_scenario": "scenarios/payload_stop_acquisition_verification.yaml",
   "canonical_identities": {
     "command": "payload.stop_acquisition",
@@ -29,23 +29,28 @@
   },
   "acceptance": {
     "reference_mission_ci": {
-      "run": 24,
-      "run_id": 34038140353,
+      "run": 31,
+      "run_id": 34048036024,
       "result": "success"
     },
     "static_flight_ground_proof": {
-      "run": 19,
-      "run_id": 34038140345,
+      "run": 26,
+      "run_id": 34048036012,
       "result": "success",
-      "artifact_id": 9990839153,
-      "artifact_sha256": "bf81079f407a5b9825a13e24ddaffc0ac9b4344240b55d9831a4e60b9f72c69c"
+      "artifact_id": 9993714514,
+      "artifact_sha256": "edfd9c148bca1ff493e58492633dbde8e22da5c82c88b7d2523679ba478bb279"
     },
     "live_flight_ground_proof": {
-      "run": 11,
-      "run_id": 34038140348,
+      "run": 18,
+      "run_id": 34048036011,
       "result": "success",
-      "artifact_id": 9990881204,
-      "artifact_sha256": "24ea34fc89102f0b2ef5c330d2af07ca1b60a2348bdfb153d10fc5f42a7d9934"
+      "artifact_id": 9993754627,
+      "artifact_sha256": "be0087c27a0fe009c6090f2286f14bb690f766cd53d7006649bc5dd50b5994dc"
+    },
+    "local_live_reproduction": {
+      "result": "success",
+      "platform": "Debian GNU/Linux 12 (bookworm)",
+      "python": "3.12.13"
     }
   },
   "scenario_projection": {
@@ -57,6 +62,9 @@
   },
   "live_result": {
     "status": "passed",
+    "interface_connected": true,
+    "telemetry_path_observable": true,
+    "telemetry_readiness_item": "FPRIME Ref.blockDrv.BD_Cycles BD_Cycles",
     "command_dispatched": true,
     "command_completed": true,
     "verification_state": "completed",
