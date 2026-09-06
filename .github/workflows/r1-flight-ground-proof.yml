@@ -120,6 +120,8 @@ jobs:
             --fprime-root "$PWD/_r1/fprime" \
             --projection "$PWD/_r1/work/fprime-projection" \
             --output-project "$PWD/_r1/work/fprime-project"
+          python engineering-stories/01-one-contract-flight-ground/scripts/configure_fprime_server_role.py \
+            --project "$PWD/_r1/work/fprime-project"
           cp _r1/work/fprime-project/ENGINEERING_STORY_FIXTURE.json \
             _r1/work/evidence/fprime-story-fixture.json
 
