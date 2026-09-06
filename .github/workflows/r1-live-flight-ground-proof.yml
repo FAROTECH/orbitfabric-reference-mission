@@ -104,6 +104,8 @@ jobs:
             --fprime-root "$PWD/_r1/fprime" \
             --projection "$PWD/_r1/work/fprime-projection" \
             --output-project "$PWD/_r1/work/fprime-project"
+          python engineering-stories/01-one-contract-flight-ground/scripts/configure_fprime_server_role.py \
+            --project "$PWD/_r1/work/fprime-project"
           cd _r1/work/fprime-project/Ref
           fprime-util generate
           fprime-util build
@@ -111,6 +113,8 @@ jobs:
           DICTIONARY="$(find _r1/work/fprime-project/Ref -type f -name 'RefTopologyDictionary.json' -print -quit)"
           test -n "$DICTIONARY"
           cp "$DICTIONARY" _r1/work/evidence/RefTopologyDictionary.json
+          cp _r1/work/fprime-project/ENGINEERING_STORY_FIXTURE.json \
+            _r1/work/evidence/fprime-story-fixture.json
 
       - name: Generate native OpenC3 F Prime target
         run: |
@@ -144,6 +148,7 @@ jobs:
           path: |
             _r1/work/live/evidence
             _r1/work/evidence/RefTopologyDictionary.json
+            _r1/work/evidence/fprime-story-fixture.json
             _r1/work/cosmos-projection/integration_result.json
             _r1/work/cosmos-projection/verification_projection/verification_projection_plan.json
             _r1/work/cosmos-projection/verification_projection/cosmos/verification.py
