@@ -109,18 +109,18 @@ jobs:
           orbitfabric-fprime run \
             --operation fpp_contract_projection \
             --input-set-manifest _r1/work/input-set/integration_input_manifest.json \
-            --profile engineering-stories/01-one-contract-flight-ground/example/profiles/fprime.yaml \
+            --profile engineering-stories/01-one-contract-flight-ground/reference-project/profiles/fprime.yaml \
             --output-dir _r1/work/fprime-projection
           cp _r1/work/fprime-projection/integration_result.json \
             _r1/work/evidence/fprime-integration-result.json
 
       - name: Materialize Story-owned F Prime runtime fixture
         run: |
-          python engineering-stories/01-one-contract-flight-ground/scripts/materialize_fprime_story.py \
+          python engineering-stories/01-one-contract-flight-ground/reference-project/scripts/materialize_fprime_story.py \
             --fprime-root "$PWD/_r1/fprime" \
             --projection "$PWD/_r1/work/fprime-projection" \
             --output-project "$PWD/_r1/work/fprime-project"
-          python engineering-stories/01-one-contract-flight-ground/scripts/configure_fprime_server_role.py \
+          python engineering-stories/01-one-contract-flight-ground/reference-project/scripts/configure_fprime_server_role.py \
             --project "$PWD/_r1/work/fprime-project"
           cp _r1/work/fprime-project/ENGINEERING_STORY_FIXTURE.json \
             _r1/work/evidence/fprime-story-fixture.json
@@ -156,7 +156,7 @@ jobs:
 
       - name: Dry-run native F Prime dictionary through OpenC3 F Prime plugin
         run: |
-          python engineering-stories/01-one-contract-flight-ground/scripts/generate_cosmos_fprime_target.py \
+          python engineering-stories/01-one-contract-flight-ground/reference-project/scripts/generate_cosmos_fprime_target.py \
             --plugin-root "$PWD/_r1/openc3-fprime" \
             --dictionary "$PWD/_r1/work/evidence/RefTopologyDictionary.json" \
             --output-dir "$PWD/_r1/work/openc3-fprime"
@@ -172,7 +172,7 @@ jobs:
           orbitfabric-openc3-cosmos run \
             --operation verification_projection \
             --input-set-manifest _r1/work/input-set/integration_input_manifest.json \
-            --profile engineering-stories/01-one-contract-flight-ground/example/profiles/cosmos.yaml \
+            --profile engineering-stories/01-one-contract-flight-ground/reference-project/profiles/cosmos.yaml \
             --operation-input scenario scenarios/payload_stop_acquisition_verification.yaml \
             --output-dir _r1/work/cosmos-projection
 

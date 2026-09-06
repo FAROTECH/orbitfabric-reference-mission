@@ -159,8 +159,8 @@ def narrow_ref_demo_content(deployment: Path) -> list[str]:
     removed: list[str] = []
 
     # TypeDemo exercises arrays of user-defined enums and many scalar types. It is
-    # unrelated to R1 and independently exposed the OpenC3 parser limitation tracked
-    # in Architecture Lab Investigation 015.
+    # unrelated to R1 and independently exposed the downstream OpenC3 array parser
+    # limitation observed while preparing the minimal Reference Project fixture.
     remove_instance_block(instances, "typeDemo")
     remove_line_once(topology, "    instance typeDemo\n")
     remove_line_once(root_cmake, 'add_fprime_subdirectory("${CMAKE_CURRENT_LIST_DIR}/TypeDemo/")\n')
@@ -347,9 +347,8 @@ def main() -> int:
             "reason": (
                 "Unrelated F Prime Ref sample-application content with no role in the R1 "
                 "semantic slice. TypeDemo and SignalGen also exposed the qualified-array "
-                "parser limitation tracked separately in Architecture Lab Investigation 015. "
-                "Removal occurs before native F Prime generation; the resulting native "
-                "dictionary is not filtered or patched."
+                "parser limitation observed during R1. Removal occurs before native F Prime "
+                "generation; the resulting native dictionary is not filtered or patched."
             ),
         },
         "ownership_note": (

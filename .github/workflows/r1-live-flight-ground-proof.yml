@@ -95,16 +95,16 @@ jobs:
           orbitfabric-fprime run \
             --operation fpp_contract_projection \
             --input-set-manifest _r1/work/input-set/integration_input_manifest.json \
-            --profile engineering-stories/01-one-contract-flight-ground/example/profiles/fprime.yaml \
+            --profile engineering-stories/01-one-contract-flight-ground/reference-project/profiles/fprime.yaml \
             --output-dir _r1/work/fprime-projection
 
       - name: Build native F Prime target and Dictionary
         run: |
-          python engineering-stories/01-one-contract-flight-ground/scripts/materialize_fprime_story.py \
+          python engineering-stories/01-one-contract-flight-ground/reference-project/scripts/materialize_fprime_story.py \
             --fprime-root "$PWD/_r1/fprime" \
             --projection "$PWD/_r1/work/fprime-projection" \
             --output-project "$PWD/_r1/work/fprime-project"
-          python engineering-stories/01-one-contract-flight-ground/scripts/configure_fprime_server_role.py \
+          python engineering-stories/01-one-contract-flight-ground/reference-project/scripts/configure_fprime_server_role.py \
             --project "$PWD/_r1/work/fprime-project"
           cd _r1/work/fprime-project/Ref
           fprime-util generate
@@ -118,7 +118,7 @@ jobs:
 
       - name: Generate native OpenC3 F Prime target
         run: |
-          python engineering-stories/01-one-contract-flight-ground/scripts/generate_cosmos_fprime_target.py \
+          python engineering-stories/01-one-contract-flight-ground/reference-project/scripts/generate_cosmos_fprime_target.py \
             --plugin-root "$PWD/_r1/openc3-fprime" \
             --dictionary "$PWD/_r1/work/evidence/RefTopologyDictionary.json" \
             --output-dir "$PWD/_r1/work/openc3-fprime"
@@ -128,13 +128,13 @@ jobs:
           orbitfabric-openc3-cosmos run \
             --operation verification_projection \
             --input-set-manifest _r1/work/input-set/integration_input_manifest.json \
-            --profile engineering-stories/01-one-contract-flight-ground/example/profiles/cosmos.yaml \
+            --profile engineering-stories/01-one-contract-flight-ground/reference-project/profiles/cosmos.yaml \
             --operation-input scenario scenarios/payload_stop_acquisition_verification.yaml \
             --output-dir _r1/work/cosmos-projection
 
       - name: Execute live COSMOS to F Prime loop
         run: |
-          bash engineering-stories/01-one-contract-flight-ground/scripts/run_live_fprime_cosmos.sh \
+          bash engineering-stories/01-one-contract-flight-ground/reference-project/scripts/run_live_fprime_cosmos.sh \
             "$PWD/_r1/work/fprime-project/Ref" \
             "$PWD/_r1/openc3-fprime" \
             "$PWD/_r1/cosmos-project" \
