@@ -1,0 +1,31 @@
+kind: orbitfabric.projection_profile
+profile_version: 0.1-candidate
+profile:
+  id: engineering-story-flight-ground-cosmos
+  version: 0.1.0
+  description: >
+    OpenC3 COSMOS verification mapping for the Reference Mission flight-ground Engineering Story.
+integration:
+  id: orbitfabric-openc3-cosmos
+  schema_version: 0.1-candidate
+settings:
+  target_name: FPRIME
+  telemetry_wait_timeout_s: 5
+bindings:
+  - id: cmd.stop_acquisition
+    intent: project
+    sources:
+      - domain: commands
+        id: payload.stop_acquisition
+    config:
+      cosmos_command: Ref.payload.OF_StopAcquisition
+
+  - id: tm.acquisition_active
+    intent: project
+    sources:
+      - domain: telemetry
+        id: radiation_payload.acquisition_active
+    config:
+      cosmos_packet: Ref.payload.OF_AcquisitionActive
+      cosmos_item: OF_AcquisitionActive
+      value_encoding: boolean_01
