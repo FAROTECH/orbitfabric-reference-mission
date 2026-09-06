@@ -2,7 +2,7 @@
   "kind": "orbitfabric.reference_mission.engineering_story_01.accepted_baseline",
   "version": "1.0",
   "status": "passed",
-  "accepted_reference_project_commit": "7fba4523e31f1954d3915004bb209ddc249190c3",
+  "accepted_reference_project_commit": "566e377cab1c9fda0ba4005c5974502ed23e59c5",
   "canonical_scenario": "scenarios/payload_stop_acquisition_verification.yaml",
   "canonical_identities": {
     "command": "payload.stop_acquisition",
@@ -29,23 +29,23 @@
   },
   "acceptance": {
     "reference_mission_ci": {
-      "run": 22,
-      "run_id": 34037521873,
+      "run": 24,
+      "run_id": 34038140353,
       "result": "success"
     },
     "static_flight_ground_proof": {
-      "run": 17,
-      "run_id": 34037521907,
+      "run": 19,
+      "run_id": 34038140345,
       "result": "success",
-      "artifact_id": 9990660357,
-      "artifact_sha256": "1fc8dbfcce69807dba898a961c5af2b929bf9fb1100d40cd0b477156ebba0281"
+      "artifact_id": 9990839153,
+      "artifact_sha256": "bf81079f407a5b9825a13e24ddaffc0ac9b4344240b55d9831a4e60b9f72c69c"
     },
     "live_flight_ground_proof": {
-      "run": 9,
-      "run_id": 34037521908,
+      "run": 11,
+      "run_id": 34038140348,
       "result": "success",
-      "artifact_id": 9990696778,
-      "artifact_sha256": "35447728958d22296a41f50c9dc4c191f1ab4db3f149f3cd8aae9d71027d9486"
+      "artifact_id": 9990881204,
+      "artifact_sha256": "24ea34fc89102f0b2ef5c330d2af07ca1b60a2348bdfb153d10fc5f42a7d9934"
     }
   },
   "scenario_projection": {
