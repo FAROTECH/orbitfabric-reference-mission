@@ -2,10 +2,14 @@
 """Materialize the R1 Story-owned F Prime runtime fixture.
 
 This script does not generate flight behavior from OrbitFabric semantics. It composes
-adapter-produced FPP declarations into a tiny F Prime project and supplies the one
-explicit downstream behavior required by Engineering Story 01:
+adapter-produced FPP declarations into a F Prime reference deployment fixture and
+supplies the one explicit downstream behavior required by Engineering Story 01:
 
     OF_StopAcquisition -> OF_AcquisitionActive = false
+
+The upstream Ref deployment is deliberately narrowed where unrelated demo content
+prevents downstream dictionary consumers from processing the Story slice. Such
+narrowing is target-fixture ownership and does not alter OrbitFabric semantics.
 """
 
 from __future__ import annotations
@@ -159,6 +163,51 @@ def main() -> int:
     packets = deployment / "Top/RefPackets.fppi"
     root_cmake = deployment / "CMakeLists.txt"
 
+    # TypeDemo is an unrelated F Prime sample component. Its array-of-enum command
+    # parameters are outside this Story and are not consumable by the pinned/current
+    # OpenC3 F Prime parser. Remove the sample from the native deployment rather than
+    # filtering or rewriting the native dictionary after F Prime has produced it.
+    replace_once(
+        instances,
+        "  instance typeDemo: Ref.TypeDemo base id 0x10005000\n\n",
+        "",
+    )
+    replace_once(
+        topology,
+        "    instance typeDemo\n",
+        "",
+    )
+    replace_once(
+        root_cmake,
+        'add_fprime_subdirectory("${CMAKE_CURRENT_LIST_DIR}/TypeDemo/")\n',
+        "",
+    )
+    type_demo_packet = """  packet TypeDemo id 20 group 3 {
+    typeDemo.ChoiceCh
+    typeDemo.ChoicesCh
+    typeDemo.ExtraChoicesCh
+    typeDemo.ChoicePairCh
+    typeDemo.ChoiceSlurryCh
+    typeDemo.Float1Ch
+    typeDemo.Float2Ch
+    typeDemo.Float3Ch
+    typeDemo.FloatSet
+    typeDemo.ScalarStructCh
+    typeDemo.ScalarU8Ch
+    typeDemo.ScalarU16Ch
+    typeDemo.ScalarU32Ch
+    typeDemo.ScalarU64Ch
+    typeDemo.ScalarI8Ch
+    typeDemo.ScalarI16Ch
+    typeDemo.ScalarI32Ch
+    typeDemo.ScalarI64Ch
+    typeDemo.ScalarF32Ch
+    typeDemo.ScalarF64Ch
+  }
+
+"""
+    replace_once(packets, type_demo_packet, "")
+
     append_before_last_brace(
         instances,
         "\n  instance payload: Reference.PayloadComponent base id 0x10030000 \\\n"
@@ -214,10 +263,18 @@ def main() -> int:
             "channel": "payload.OF_AcquisitionActive",
             "ownership": "F Prime deployment fixture",
         },
+        "excluded_upstream_demo_content": {
+            "components": ["Ref.TypeDemo"],
+            "reason": (
+                "Unrelated F Prime sample content. Its array-of-enum command parameters "
+                "are outside the R1 semantic slice and are not consumable by the "
+                "OpenC3 F Prime parser. The native dictionary is not filtered or patched."
+            ),
+        },
         "ownership_note": (
-            "The behavior and telemetry packet placement above are downstream example "
-            "implementation choices, not behavior or packet allocation generated from "
-            "OrbitFabric mission semantics."
+            "The behavior, telemetry packet placement, and narrowing of unrelated Ref "
+            "demo content above are downstream example-fixture choices, not behavior or "
+            "deployment generated from OrbitFabric mission semantics."
         ),
     }
     (project / "ENGINEERING_STORY_FIXTURE.json").write_text(
