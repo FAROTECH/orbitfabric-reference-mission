@@ -157,18 +157,18 @@ import time
 
 from openc3.script import tlm
 
-TELEMETRY = "FPRIME Ref.payload.OF_AcquisitionActive OF_AcquisitionActive"
+TELEMETRY = "FPRIME Ref.blockDrv.BD_Cycles BD_Cycles"
 DEADLINE = time.monotonic() + 30.0
 last_value = None
 
 while time.monotonic() < DEADLINE:
     last_value = tlm(TELEMETRY, type="RAW")
     if last_value is not None:
-        print(f"R1 telemetry ready: {TELEMETRY} = {last_value}")
+        print(f"R1 telemetry path ready: {TELEMETRY} = {last_value}")
         break
     time.sleep(0.5)
 else:
-    raise RuntimeError(f"R1 telemetry did not become observable within 30 seconds: {TELEMETRY}")
+    raise RuntimeError(f"R1 telemetry path did not become observable within 30 seconds: {TELEMETRY}")
 PY
 
 log "building and loading native OpenC3 F Prime plugin"
@@ -186,15 +186,15 @@ wait_fprime_interface
 grep -q 'Accepted client' "${EVIDENCE_DIR}/fprime.stdout"
 log "FPRIME_INT connected to native F Prime target"
 
-# A connected interface is still weaker than scenario readiness. The first
-# required telemetry packet can arrive later, especially on shared CI runners.
-# Establish telemetry observability before starting the generated verification,
-# while preserving the generated scenario's own five-second check unchanged.
-log "waiting for required F Prime telemetry readiness"
+# A connected interface is still weaker than telemetry-path readiness. Use the
+# Ref deployment's native periodic block-driver cycle telemetry as an independent
+# heartbeat before starting the Story. This keeps bootstrap readiness separate
+# from the generated scenario assertion on OF_AcquisitionActive.
+log "waiting for native F Prime telemetry path readiness"
 cosmos_cli "${COSMOS_PROJECT_DIR}" script run FPRIME/procedures/r1_telemetry_readiness.py \
   >"${EVIDENCE_DIR}/fprime-telemetry-readiness.txt" 2>&1
-grep -q 'R1 telemetry ready:' "${EVIDENCE_DIR}/fprime-telemetry-readiness.txt"
-log "required F Prime telemetry is observable"
+grep -q 'R1 telemetry path ready:' "${EVIDENCE_DIR}/fprime-telemetry-readiness.txt"
+log "native F Prime telemetry path is observable"
 
 log "running OrbitFabric-generated verification suite against live F Prime"
 SCRIPT_ID="$(cosmos_cli "${COSMOS_PROJECT_DIR}" script spawn \
