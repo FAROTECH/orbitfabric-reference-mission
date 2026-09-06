@@ -1,15 +1,18 @@
 # Retained evidence
 
-This directory is reserved for the stable, publication-grade evidence selected from the accepted Reference Project baseline.
+This directory holds the stable, publication-grade evidence selected from the accepted Reference Project baseline.
 
-The intent is not to preserve CI history. It is to preserve the smallest set of accepted artifacts needed to inspect the public claims after transient GitHub Actions artifacts expire.
+It is intentionally **not** a history of development runs. Failed experiments and CI iteration history are not part of the public evidence package unless a specific falsification is needed to explain an architectural lesson.
 
-The final retained set will cover:
+The retained publication set will preserve the smallest durable facts needed to inspect the Story after transient GitHub Actions artifacts expire:
 
 ```text
-provenance
-native F Prime identity / fixture evidence
-COSMOS verification projection evidence
-live command / telemetry proof
+accepted provenance and exact baselines
+native F Prime resolved identities and deployment manifest
+COSMOS executable-subset projection result
+exact generated verification procedure
+live command / telemetry result
 SHA-256 digests
 ```
+
+The final retained files are frozen only after the post-packaging static and live workflows re-accept the Reference Project in its publication layout.
