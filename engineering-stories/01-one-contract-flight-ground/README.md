@@ -27,7 +27,15 @@ telemetry
     radiation_payload.acquisition_active
 ```
 
-and will test whether one mission contract can independently drive:
+The verification intent is not duplicated inside the Story package. It is consumed directly from the canonical Reference Mission scenario:
+
+```text
+scenarios/payload_stop_acquisition_verification.yaml
+```
+
+That scenario is intentionally richer than the current COSMOS projection subset. It also retains mission-level event and payload-lifecycle expectations, while the OpenC3 COSMOS adapter projects only the command and telemetry observation it currently owns.
+
+The Story tests whether one mission contract can independently drive:
 
 ```text
 OrbitFabric Core
@@ -43,12 +51,13 @@ with downstream convergence through the existing OpenC3 F Prime plugin and a liv
 
 ```text
 example/
-    scenario.yaml
     profiles/
         fprime.yaml
         cosmos.yaml
 
 scripts/
+    materialize_fprime_story.py
+    generate_cosmos_fprime_target.py
     runtime orchestration will be added only after the native fixture and plugin dry-run are accepted
 
 evidence/
@@ -65,4 +74,4 @@ This work does not claim:
 - serial composition of the two OrbitFabric adapters;
 - a completed runtime proof.
 
-The F Prime implementation behavior used by this Story will remain an explicit Story-owned downstream fixture.
+The F Prime implementation behavior used by this Story remains an explicit Story-owned downstream fixture.
