@@ -98,6 +98,23 @@ raise SystemExit(1)
 PY
 }
 
+wait_fprime_interface() {
+  local snapshot="${EVIDENCE_DIR}/fprime-interface-readiness.log"
+  compose_args
+  : >"${snapshot}"
+  for _ in {1..90}; do
+    (cd "${COSMOS_PROJECT_DIR}" && "${COMPOSE_ARGS[@]}" logs --no-color --timestamps --since 2m) \
+      >"${snapshot}" 2>&1 || true
+    if grep -q 'FPRIME_INT: Connection Success' "${snapshot}"; then
+      grep -E 'FPRIME_INT: (Starting packet reading|Connect .*50000|Connection Success)' \
+        "${snapshot}" >"${EVIDENCE_DIR}/fprime-interface-ready.txt" || true
+      return 0
+    fi
+    sleep 1
+  done
+  return 1
+}
+
 log "locating native F Prime Ref binary"
 FPRIME_BIN="$(find "${REF_DIR}" -type f -path '*/bin/Ref' -perm -111 -print -quit)"
 test -n "${FPRIME_BIN}"
@@ -142,6 +159,14 @@ GEM="${PLUGIN_DIR}/openc3-cosmos-fprime-${PLUGIN_VERSION}.gem"
 test -f "${GEM}"
 cosmos_cli "${PLUGIN_DIR}" validate "$(basename "${GEM}")" DEFAULT >"${EVIDENCE_DIR}/plugin-validate.log" 2>&1
 cosmos_cli "${PLUGIN_DIR}" load "$(basename "${GEM}")" DEFAULT >"${EVIDENCE_DIR}/plugin-load.log" 2>&1
+
+# Plugin load is not equivalent to runtime readiness. The OpenC3 operator starts
+# FPRIME_INT asynchronously, so wait for the native interface to establish its
+# actual TCP connection before issuing the first Story command.
+log "waiting for native OpenC3 FPRIME_INT connection"
+wait_fprime_interface
+grep -q 'Accepted client' "${EVIDENCE_DIR}/fprime.stdout"
+log "FPRIME_INT connected to native F Prime target"
 
 log "running OrbitFabric-generated verification suite against live F Prime"
 SCRIPT_ID="$(cosmos_cli "${COSMOS_PROJECT_DIR}" script spawn \
