@@ -71,7 +71,11 @@ jobs:
           python -m pip install ./_r1/fprime-adapter
           orbitfabric --version
           orbitfabric-fprime --version
-          fprime-util --version
+          python - <<'PY'
+          import importlib.metadata
+          print("fprime-tools", importlib.metadata.version("fprime-tools"))
+          print("fprime-fpp", importlib.metadata.version("fprime-fpp"))
+          PY
 
       - name: Export canonical Reference Mission Core Integration Input Set
         run: |
