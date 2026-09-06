@@ -192,12 +192,34 @@ log "FPRIME_INT connected to native F Prime target"
 
 # A connected interface is still weaker than telemetry-path readiness. Use the
 # Ref deployment's native periodic block-driver cycle telemetry as an independent
-# heartbeat before starting the Story. This keeps bootstrap readiness separate
-# from the generated scenario assertion on OF_AcquisitionActive.
+# heartbeat before starting the Story. Launch the readiness procedure asynchronously
+# and poll script state so proof success does not depend on the CLI WebSocket monitor.
 log "waiting for native F Prime telemetry path readiness"
-cosmos_cli "${COSMOS_PROJECT_DIR}" script run FPRIME/procedures/r1_telemetry_readiness.py \
-  >"${EVIDENCE_DIR}/fprime-telemetry-readiness.txt" 2>&1
-grep -q 'R1 telemetry path ready:' "${EVIDENCE_DIR}/fprime-telemetry-readiness.txt"
+READINESS_SCRIPT_ID="$(cosmos_cli "${COSMOS_PROJECT_DIR}" script spawn \
+  FPRIME/procedures/r1_telemetry_readiness.py \
+  2>"${EVIDENCE_DIR}/fprime-telemetry-readiness.stderr" \
+  | tee "${EVIDENCE_DIR}/fprime-telemetry-readiness.stdout" | tail -n 1)"
+[[ "${READINESS_SCRIPT_ID}" =~ ^[0-9]+$ ]]
+printf '%s\n' "${READINESS_SCRIPT_ID}" >"${EVIDENCE_DIR}/fprime-telemetry-readiness-id.txt"
+
+for _ in {1..30}; do
+  cosmos_cli "${COSMOS_PROJECT_DIR}" script status "${READINESS_SCRIPT_ID}" --verbose \
+    >"${EVIDENCE_DIR}/fprime-telemetry-readiness-status.txt" 2>&1 || true
+  if grep -qE '"state"[[:space:]]*=>[[:space:]]*"(completed|completed_errors|crashed|killed|stopped)"' \
+      "${EVIDENCE_DIR}/fprime-telemetry-readiness-status.txt"; then
+    break
+  fi
+  sleep 2
+done
+
+grep -qE '"state"[[:space:]]*=>[[:space:]]*"completed"' \
+  "${EVIDENCE_DIR}/fprime-telemetry-readiness-status.txt"
+
+compose_args
+(cd "${COSMOS_PROJECT_DIR}" && "${COMPOSE_ARGS[@]}" logs --no-color --timestamps --since 2m) \
+  >"${EVIDENCE_DIR}/fprime-telemetry-readiness-runtime.log" 2>&1 || true
+grep 'R1 telemetry path ready:' "${EVIDENCE_DIR}/fprime-telemetry-readiness-runtime.log" \
+  >"${EVIDENCE_DIR}/fprime-telemetry-readiness.txt" || true
 log "native F Prime telemetry path is observable"
 
 log "running OrbitFabric-generated verification suite against live F Prime"
