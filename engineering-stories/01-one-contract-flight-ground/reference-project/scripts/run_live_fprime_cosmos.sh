@@ -152,6 +152,24 @@ cp "${WORK_DIR}/../cosmos-projection/verification_projection/cosmos/verification
   "${PLUGIN_DIR}/targets/FPRIME/procedures/verification.py"
 cp "${WORK_DIR}/../cosmos-projection/verification_projection/cosmos/verification_suite.py" \
   "${PLUGIN_DIR}/targets/FPRIME/procedures/verification_suite.py"
+cat >"${PLUGIN_DIR}/targets/FPRIME/procedures/r1_telemetry_readiness.py" <<'PY'
+import time
+
+from openc3.script import tlm
+
+TELEMETRY = "FPRIME Ref.payload.OF_AcquisitionActive OF_AcquisitionActive"
+DEADLINE = time.monotonic() + 30.0
+last_value = None
+
+while time.monotonic() < DEADLINE:
+    last_value = tlm(TELEMETRY, type="RAW")
+    if last_value is not None:
+        print(f"R1 telemetry ready: {TELEMETRY} = {last_value}")
+        break
+    time.sleep(0.5)
+else:
+    raise RuntimeError(f"R1 telemetry did not become observable within 30 seconds: {TELEMETRY}")
+PY
 
 log "building and loading native OpenC3 F Prime plugin"
 cosmos_cli "${PLUGIN_DIR}" rake build VERSION="${PLUGIN_VERSION}" >"${EVIDENCE_DIR}/plugin-build.log" 2>&1
@@ -167,6 +185,16 @@ log "waiting for native OpenC3 FPRIME_INT connection"
 wait_fprime_interface
 grep -q 'Accepted client' "${EVIDENCE_DIR}/fprime.stdout"
 log "FPRIME_INT connected to native F Prime target"
+
+# A connected interface is still weaker than scenario readiness. The first
+# required telemetry packet can arrive later, especially on shared CI runners.
+# Establish telemetry observability before starting the generated verification,
+# while preserving the generated scenario's own five-second check unchanged.
+log "waiting for required F Prime telemetry readiness"
+cosmos_cli "${COSMOS_PROJECT_DIR}" script run FPRIME/procedures/r1_telemetry_readiness.py \
+  >"${EVIDENCE_DIR}/fprime-telemetry-readiness.txt" 2>&1
+grep -q 'R1 telemetry ready:' "${EVIDENCE_DIR}/fprime-telemetry-readiness.txt"
+log "required F Prime telemetry is observable"
 
 log "running OrbitFabric-generated verification suite against live F Prime"
 SCRIPT_ID="$(cosmos_cli "${COSMOS_PROJECT_DIR}" script spawn \
