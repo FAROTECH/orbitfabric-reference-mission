@@ -1,0 +1,22 @@
+{
+  "assertions": {
+    "native_fprime_command_identity_preserved": true,
+    "native_fprime_telemetry_identity_preserved": true,
+    "no_story_owned_identity_alias_required": true
+  },
+  "dictionary_sha256": "e973c6b1a62d5bdf2d3bba76fea1f4f81d8608beebb50f804636450de934b8d0",
+  "generated": {
+    "cmd_txt_sha256": "dc55d98762b866815e4b2776b605e84db317c7d80e0616cc40e73bc3240baef7",
+    "tlm_txt_sha256": "5e00d4b19ac137097d5e32df7fdaac73c48f1d166ea0d6bd2a0628fd29a1a7a2"
+  },
+  "kind": "orbitfabric.reference_mission.engineering_story_01.openc3_fprime_dry_run",
+  "plugin_commit": "f80d6a2d112a9f2680ad9f404bca2ac116315d33",
+  "resolved": {
+    "command": "Ref.payload.OF_StopAcquisition",
+    "target": "FPRIME",
+    "telemetry_item": "OF_AcquisitionActive",
+    "telemetry_packet": "Ref.payload.OF_AcquisitionActive"
+  },
+  "status": "passed",
+  "version": "0.1-candidate"
+}

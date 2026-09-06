@@ -1,0 +1,12 @@
+{
+  "kind": "orbitfabric.reference_mission.engineering_story_01.live_proof",
+  "version": "0.1-candidate",
+  "status": "passed",
+  "fprime_target": "Ref",
+  "fprime_tcp_port": 50000,
+  "cosmos_target": "FPRIME",
+  "command": "Ref.payload.OF_StopAcquisition",
+  "telemetry_packet": "Ref.payload.OF_AcquisitionActive",
+  "telemetry_item": "OF_AcquisitionActive",
+  "script_runner_id": 1
+}
