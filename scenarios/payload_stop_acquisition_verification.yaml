@@ -1,0 +1,37 @@
+scenario:
+  id: payload_stop_acquisition_verification
+  name: Payload stop acquisition verification
+  description: >
+    Verify the mission-level stop-acquisition contract from an already active
+    payload state. The command completes the acquisition, reports the payload
+    inactive, and returns the payload lifecycle to READY without asserting a
+    post-recovery spacecraft mode.
+
+mission:
+  path: ../mission
+
+initial_state:
+  mode: PAYLOAD_ACTIVE
+  telemetry:
+    radiation_payload.acquisition_active: true
+
+steps:
+  - t: 1
+    command: payload.stop_acquisition
+
+  - t: 2
+    expect_event: payload.acquisition_completed
+
+  - t: 3
+    expect_telemetry:
+      radiation_payload.acquisition_active: false
+
+  - t: 4
+    expect:
+      payload_lifecycle:
+        payload: radiation_event_payload
+        state: READY
+
+  - t: 5
+    expect:
+      scenario_status: PASSED
