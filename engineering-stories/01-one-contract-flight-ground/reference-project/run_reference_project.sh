@@ -30,6 +30,36 @@ require_command() {
   command -v "$1" >/dev/null 2>&1 || fail "required command not found: $1"
 }
 
+python_is_312() {
+  "$1" - <<'PY' >/dev/null 2>&1
+import sys
+raise SystemExit(0 if sys.version_info[:2] == (3, 12) else 1)
+PY
+}
+
+select_python() {
+  local requested="${ORBITFABRIC_REFERENCE_PYTHON:-}"
+  local candidate=""
+
+  if [[ -n "${requested}" ]]; then
+    command -v "${requested}" >/dev/null 2>&1 \
+      || fail "ORBITFABRIC_REFERENCE_PYTHON not found: ${requested}"
+    python_is_312 "${requested}" \
+      || fail "Reference Project requires Python 3.12.x; ${requested} reports $("${requested}" --version 2>&1)"
+    printf '%s\n' "${requested}"
+    return
+  fi
+
+  for candidate in python3.12 python3; do
+    if command -v "${candidate}" >/dev/null 2>&1 && python_is_312 "${candidate}"; then
+      printf '%s\n' "${candidate}"
+      return
+    fi
+  done
+
+  fail "Python 3.12.x is required. Install Python 3.12 with venv support, or set ORBITFABRIC_REFERENCE_PYTHON to a Python 3.12 interpreter."
+}
+
 ensure_checkout() {
   local name="$1" url="$2" sha="$3" recurse="${4:-no}"
   local dir="${DEPS_DIR}/${name}"
@@ -48,7 +78,9 @@ ensure_checkout() {
 }
 
 require_command git
-require_command python3
+PYTHON_BIN="$(select_python)"
+log "using $("${PYTHON_BIN}" --version 2>&1)"
+
 if [[ "${MODE}" == "live" ]]; then
   require_command docker
   docker compose version >/dev/null 2>&1 || fail "Docker Compose v2 is required for live mode"
@@ -66,11 +98,18 @@ if [[ "${MODE}" == "live" ]]; then
   ensure_checkout cosmos-project https://github.com/OpenC3/cosmos-project.git "${COSMOS_PROJECT_SHA}"
 fi
 
+if [[ -x "${VENV_DIR}/bin/python" ]] && ! python_is_312 "${VENV_DIR}/bin/python"; then
+  log "removing incompatible virtual environment: $("${VENV_DIR}/bin/python" --version 2>&1)"
+  rm -rf "${VENV_DIR}"
+fi
+
 if [[ ! -x "${VENV_DIR}/bin/python" ]]; then
-  log "creating Python virtual environment"
-  python3 -m venv "${VENV_DIR}"
+  log "creating Python 3.12 virtual environment"
+  "${PYTHON_BIN}" -m venv "${VENV_DIR}"
 fi
 source "${VENV_DIR}/bin/activate"
+python_is_312 python || fail "virtual environment is not Python 3.12.x"
+
 python -m pip install --upgrade pip
 python -m pip install -r "${DEPS_DIR}/fprime/requirements.txt"
 python -m pip install "${DEPS_DIR}/core" "${DEPS_DIR}/fprime-adapter"
