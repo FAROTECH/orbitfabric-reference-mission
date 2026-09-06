@@ -1,0 +1,152 @@
+name: R1 Flight Ground Proof
+
+on:
+  pull_request:
+    paths:
+      - "mission/**"
+      - "scenarios/payload_stop_acquisition_verification.yaml"
+      - "engineering-stories/01-one-contract-flight-ground/**"
+      - ".github/workflows/r1-flight-ground-proof.yml"
+  workflow_dispatch:
+
+jobs:
+  fprime-dictionary-to-openc3:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Reference Mission Story branch
+        uses: actions/checkout@v4
+
+      - name: Checkout exact OrbitFabric Core
+        uses: actions/checkout@v4
+        with:
+          repository: FAROTECH/orbitfabric
+          ref: a25917e81c90396df2b189834e83cf852fa4da5f
+          path: _r1/core
+
+      - name: Checkout exact OrbitFabric F Prime adapter
+        uses: actions/checkout@v4
+        with:
+          repository: FAROTECH/orbitfabric-fprime-adapter
+          ref: 598f0ca09a39c10b17e3c588d0f2c7112fe52e06
+          path: _r1/fprime-adapter
+
+      - name: Checkout exact F Prime
+        uses: actions/checkout@v4
+        with:
+          repository: nasa/fprime
+          ref: 8a62e455a90b6d4f498c332d45d65a2a819988d8
+          path: _r1/fprime
+          submodules: recursive
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Checkout exact FPP
+        uses: actions/checkout@v4
+        with:
+          repository: nasa/fpp
+          ref: 93f484b7521a8e8894cba25b26e633cc87d8e37a
+          path: _r1/fpp
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Checkout exact OpenC3 F Prime plugin
+        uses: actions/checkout@v4
+        with:
+          repository: OpenC3/openc3-cosmos-fprime
+          ref: f80d6a2d112a9f2680ad9f404bca2ac116315d33
+          path: _r1/openc3-fprime
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install pinned toolchain and OrbitFabric products
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r _r1/fprime/requirements.txt
+          test "$(git -C _r1/fpp rev-list -n 1 v3.2.0)" = "93f484b7521a8e8894cba25b26e633cc87d8e37a"
+          python -m pip install ./_r1/core
+          python -m pip install ./_r1/fprime-adapter
+          orbitfabric --version
+          orbitfabric-fprime --version
+          fprime-util --version
+
+      - name: Export canonical Reference Mission Core Integration Input Set
+        run: |
+          rm -rf _r1/work
+          mkdir -p _r1/work/evidence
+          orbitfabric export integration-input-set mission/ \
+            --output-dir _r1/work/input-set
+          sha256sum _r1/work/input-set/integration_input_manifest.json \
+            | tee _r1/work/evidence/core-input-manifest.sha256
+
+      - name: Project canonical mission slice into F Prime
+        run: |
+          orbitfabric-fprime run \
+            --operation fpp_contract_projection \
+            --input-set-manifest _r1/work/input-set/integration_input_manifest.json \
+            --profile engineering-stories/01-one-contract-flight-ground/example/profiles/fprime.yaml \
+            --output-dir _r1/work/fprime-projection
+          cp _r1/work/fprime-projection/integration_result.json \
+            _r1/work/evidence/fprime-integration-result.json
+
+      - name: Materialize Story-owned F Prime runtime fixture
+        run: |
+          python engineering-stories/01-one-contract-flight-ground/scripts/materialize_fprime_story.py \
+            --fprime-root "$PWD/_r1/fprime" \
+            --projection "$PWD/_r1/work/fprime-projection" \
+            --output-project "$PWD/_r1/work/fprime-project"
+          cp _r1/work/fprime-project/ENGINEERING_STORY_FIXTURE.json \
+            _r1/work/evidence/fprime-story-fixture.json
+
+      - name: Native F Prime generate and build
+        run: |
+          cd _r1/work/fprime-project/Ref
+          fprime-util generate
+          fprime-util build
+
+      - name: Capture and verify native F Prime dictionary
+        run: |
+          DICTIONARY="$(find _r1/work/fprime-project/Ref -type f -name 'RefTopologyDictionary.json' -print -quit)"
+          test -n "$DICTIONARY"
+          cp "$DICTIONARY" _r1/work/evidence/RefTopologyDictionary.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          path = Path('_r1/work/evidence/RefTopologyDictionary.json')
+          data = json.loads(path.read_text())
+          commands = {x['name'] for x in data.get('commands', [])}
+          telemetry = {x['name'] for x in data.get('telemetryChannels', [])}
+          assert 'Ref.payload.OF_StopAcquisition' in commands, commands
+          assert 'Ref.payload.OF_AcquisitionActive' in telemetry, telemetry
+          framework = data.get('metadata', {}).get('frameworkVersion')
+          print('frameworkVersion:', framework)
+          if not isinstance(framework, str):
+              raise SystemExit('missing F Prime frameworkVersion')
+          PY
+          sha256sum _r1/work/evidence/RefTopologyDictionary.json \
+            | tee _r1/work/evidence/fprime-dictionary.sha256
+
+      - name: Dry-run native F Prime dictionary through OpenC3 F Prime plugin
+        run: |
+          python engineering-stories/01-one-contract-flight-ground/scripts/generate_cosmos_fprime_target.py \
+            --plugin-root "$PWD/_r1/openc3-fprime" \
+            --dictionary "$PWD/_r1/work/evidence/RefTopologyDictionary.json" \
+            --output-dir "$PWD/_r1/work/openc3-fprime"
+          cp _r1/work/openc3-fprime/openc3-fprime-dry-run.json \
+            _r1/work/evidence/openc3-fprime-dry-run.json
+          cp _r1/work/openc3-fprime/generated-target/cmd.txt \
+            _r1/work/evidence/openc3-fprime-cmd.txt
+          cp _r1/work/openc3-fprime/generated-target/tlm.txt \
+            _r1/work/evidence/openc3-fprime-tlm.txt
+
+      - name: Upload D2-D3 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: r1-fprime-dictionary-openc3-evidence
+          path: _r1/work/evidence
+          if-no-files-found: warn
