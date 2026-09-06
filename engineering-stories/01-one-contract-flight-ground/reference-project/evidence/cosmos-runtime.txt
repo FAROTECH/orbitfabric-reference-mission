@@ -1,4 +1,7 @@
 FPRIME_INT: Connect host.docker.internal:50000 (R/W)
 FPRIME_INT: Connection Success
+Telemetry readiness: FPRIME Ref.blockDrv.BD_Cycles BD_Cycles = 9
+Telemetry readiness state: completed
+Telemetry readiness errors: nil
 Script Runner state: completed
 Script Runner errors: nil
