@@ -1,37 +1,23 @@
-# Engineering Story 01 - One Mission Contract Across Flight and Ground
+# R1 — One Mission Contract Across Flight and Ground
 
-This package is the public entry point for the first OrbitFabric Engineering Story.
+This directory is the repository-side engineering package for OrbitFabric Engineering Story R1.
 
-It is organized in three layers so readers can choose how deep they want to go:
+The human-facing narrative is owned by the MkDocs documentation and is not duplicated here. This package keeps the executable material used to support and reproduce the Story.
 
-```text
-STORY.md
-    the engineering problem, the architectural thesis, the project and the result
+## Read and inspect
 
-TECHNICAL-DEEP-DIVE.md
-    detailed identities, projections, downstream ownership boundaries and evidence
+- **Engineering Story:** https://farotech.github.io/orbitfabric-reference-mission/engineering-stories/r1-flight-ground/
+- **Technical Deep Dive:** published alongside the Story under the same Engineering Stories section
+- **Reference Project:** [`reference-project/`](reference-project/)
 
-reference-project/
-    the reproducible project that implements and proves the demonstrated vertical slice
-```
+## Repository boundary
 
-## The demonstrated slice
+The Reference Project uses the canonical Reference Mission model and Scenario inputs from this repository, then exercises the demonstrated flight-and-ground slice through pinned OrbitFabric, F Prime and OpenC3 COSMOS components.
 
-One canonical OrbitFabric Reference Mission contract is used as the semantic root for two independent downstream paths:
+The technical path below is intentionally retained because it is referenced by the accepted R1 workflows and evidence:
 
 ```text
-payload.stop_acquisition
-radiation_payload.acquisition_active
+engineering-stories/01-one-contract-flight-ground/reference-project/
 ```
 
-The flight-side path is realized natively in F Prime. The ground-side path is projected independently into an OpenC3 COSMOS verification procedure. The paths converge through the existing F Prime to OpenC3 integration and execute one live command/telemetry verification loop.
-
-The final public Story is intentionally bounded to this demonstrated vertical slice.
-
-## Choose your path
-
-- **Read the Story:** [`STORY.md`](STORY.md)
-- **Go deeper technically:** [`TECHNICAL-DEEP-DIVE.md`](TECHNICAL-DEEP-DIVE.md)
-- **Inspect or run the project:** [`reference-project/`](reference-project/)
-
-The Story and Technical Deep Dive are being finalized only after the executable Reference Project and its retained evidence have been stabilized.
+Published Story and Deep Dive content belong under `docs/`. Do not create a second `STORY.md` or `TECHNICAL-DEEP-DIVE.md` in this package.
