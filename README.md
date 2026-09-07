@@ -1,347 +1,238 @@
 # OrbitFabric Reference Mission
 
-**Contract-oriented engineering reference mission for OrbitFabric Core and OrbitFabric Studio.**
+**A contract-oriented engineering reference mission for OrbitFabric Core, OrbitFabric Studio and ecosystem integrations.**
 
-This repository contains a realistic small-spacecraft Reference Mission used to validate, demonstrate and evolve the OrbitFabric ecosystem.
+[![Reference Mission CI](https://github.com/FAROTECH/orbitfabric-reference-mission/actions/workflows/reference-mission-ci.yml/badge.svg)](https://github.com/FAROTECH/orbitfabric-reference-mission/actions/workflows/reference-mission-ci.yml)
+[![R1 Flight Ground Proof](https://github.com/FAROTECH/orbitfabric-reference-mission/actions/workflows/r1-flight-ground-proof.yml/badge.svg)](https://github.com/FAROTECH/orbitfabric-reference-mission/actions/workflows/r1-flight-ground-proof.yml)
+[![R1 Live Flight Ground Proof](https://github.com/FAROTECH/orbitfabric-reference-mission/actions/workflows/r1-live-flight-ground-proof.yml/badge.svg)](https://github.com/FAROTECH/orbitfabric-reference-mission/actions/workflows/r1-live-flight-ground-proof.yml)
+[![Documentation](https://github.com/FAROTECH/orbitfabric-reference-mission/actions/workflows/docs-pages.yml/badge.svg)](https://github.com/FAROTECH/orbitfabric-reference-mission/actions/workflows/docs-pages.yml)
 
-It is not flight software, not a spacecraft simulator and not a real mission configuration. It is an engineering workspace for a representative CubeSat-style Mission Data Contract.
+This repository is the shared public engineering environment around a representative small-spacecraft Mission Data Contract.
 
----
+It has two complementary purposes:
 
-## Purpose
+1. **Reference Mission** - a canonical, synthetic mission model used to exercise OrbitFabric Core and OrbitFabric Studio.
+2. **Engineering Stories** - reproducible technical investigations that select a meaningful slice of that mission and test it against real engineering tools, runtimes and integration boundaries.
 
-The Reference Mission shows how a small spacecraft team can move from operational intent to a structured, machine-readable mission contract, deterministic Core evidence and visual mission understanding in OrbitFabric Studio.
+It is not flight software, not a spacecraft simulator, not a real mission configuration and not a ground segment.
 
-The intended flow is:
+## Start here
 
-```text
-mission concept
--> subsystem topology
--> operational states
--> telemetry and command contracts
--> events and recovery rules
--> payload and data products
--> contact and downlink assumptions
--> scenarios
--> generated evidence
--> runtime-facing contract artifacts
--> ground-facing contract artifacts
--> Core-owned structured surfaces
--> Studio mission exploration
-```
+- [Published documentation](https://farotech.github.io/orbitfabric-reference-mission/)
+- [Reference Mission orientation and reading path](https://farotech.github.io/orbitfabric-reference-mission/00-orientation/00-purpose-and-reading-path/)
+- [Reference Mission tutorial](https://farotech.github.io/orbitfabric-reference-mission/02-tutorial/00-tutorial-index/)
+- [Engineering Stories](https://farotech.github.io/orbitfabric-reference-mission/engineering-stories/)
+- [R1 Story: One Mission Contract Across Flight and Ground](https://farotech.github.io/orbitfabric-reference-mission/engineering-stories/r1-flight-ground/)
+- [R1 Technical Deep Dive](https://farotech.github.io/orbitfabric-reference-mission/engineering-stories/r1-flight-ground/technical-deep-dive/)
 
-The goal is a compact, credible and teachable reference mission that demonstrates one coherent OrbitFabric engineering workflow.
-
----
-
-## Editorial Architecture
-
-The validated mission model is the technical end-state. It is not the tutorial order.
-
-The documentation is organized so that the reader can distinguish between progressive tutorial material and current-state reference material:
+## Two pillars
 
 ```text
-docs/
-  00-orientation/
-  02-tutorial/
-  03-reference-overview/
+OrbitFabric Reference Mission
+│
+├── Reference Mission
+│   ├── Canonical Mission Model
+│   ├── Scenarios
+│   ├── Generated Core evidence
+│   ├── Tutorial
+│   └── Studio exploration
+│
+└── Engineering Stories
+    ├── Front Story
+    ├── Technical Deep Dive
+    └── Reproducible Reference Project
 ```
 
-The tutorial reconstructs the mission forward from operational reasoning, completes the Core-facing evidence arc, then uses the current Studio Preview 1 to explore the same Core-owned facts visually.
+### Reference Mission
 
-Key rule:
+The Reference Mission provides one coherent mission context for the OrbitFabric ecosystem.
+
+It models a representative small spacecraft through contract-level concepts such as subsystem topology, operational modes, telemetry, commands, events, faults, payload lifecycle, data products, contact and downlink intent, commandability and autonomy.
+
+OrbitFabric Core remains the semantic authority. The Mission Model is validated and used to generate deterministic evidence and machine-readable inspection surfaces. OrbitFabric Studio consumes Core-owned facts and makes them easier for an engineer to navigate and understand.
+
+The tutorial reconstructs the mission progressively from operational reasoning. The reference overview presents the consolidated current state.
+
+### Engineering Stories
+
+Engineering Stories complement the tutorial rather than replace it.
+
+Each Story starts from a real engineering question, selects a bounded slice of the canonical Reference Mission and exercises that slice against a concrete toolchain, runtime or integration boundary.
+
+A complete Story is published in three layers:
 
 ```text
-validated end-state
--> editorial decomposition
--> step-by-step construction path
--> Core evidence
--> Studio mission understanding
+Front Story
+    Why does this matter?
+    What problem did we explore?
+    What did we learn?
+
+Technical Deep Dive
+    How exactly does it work?
+    Where are the ownership boundaries?
+    What evidence supports the claims?
+
+Reference Project
+    Can I inspect it?
+    Can I run it?
+    Can I reproduce the result?
 ```
 
-Start from:
+## R1 - One Mission Contract Across Flight and Ground
+
+R1 is the first completed Engineering Story.
+
+It asks whether one mission-level semantic root can drive independently owned flight and ground engineering paths without forcing either side to adopt the other's implementation model.
+
+The demonstrated vertical slice uses these canonical OrbitFabric identities:
 
 ```text
-docs/00-orientation/00-purpose-and-reading-path.md
+payload.stop_acquisition
+radiation_payload.acquisition_active
 ```
 
----
+The proof follows two independent downstream paths:
 
-## Repository Layout
+```text
+Canonical Mission Model
+        │
+        ├── F Prime projection
+        │      -> native FPP declarations
+        │      -> Story-owned F Prime fixture
+        │      -> native F Prime Dictionary
+        │      -> OpenC3 F Prime target definitions
+        │
+        └── Scenario + COSMOS Projection Profile
+               -> generated verification procedure and suite
+
+Both paths converge in a real OpenC3 COSMOS <-> F Prime runtime loop.
+```
+
+R1 retains explicit Scenario projection accounting rather than weakening the upstream mission contract to match downstream limitations:
+
+```text
+8 source atoms
+3 projected atoms
+5 not_projected atoms
+2 executable operations
+```
+
+Accepted R1 baselines:
+
+```text
+Executable Reference Project
+  d66f6068235d425bdc2335d4b0cb09a58e70c1de
+
+Sealed retained evidence
+  c90a7c6d44d018006a4f8f0825411e3f27540fc2
+
+Final Story / Deep Dive package
+  7ac43c9fd8e891168c3461ffa203f6fe54eff80f
+```
+
+R1 is intentionally bounded. It does not claim generic F Prime project generation, full canonical Scenario execution by COSMOS, flight behavior generation from mission expected effects, generic adapter composition or write-once-run-everywhere behavior. The exact claims, non-claims, ownership boundaries and retained evidence are documented in the [Technical Deep Dive](https://farotech.github.io/orbitfabric-reference-mission/engineering-stories/r1-flight-ground/technical-deep-dive/).
+
+## Repository layout
 
 ```text
 .
-├── mission/
-├── scenarios/
-├── docs/
-└── mkdocs.yml
+├── mission/                 # canonical OrbitFabric Mission Model
+├── scenarios/               # canonical executable scenarios
+├── engineering-stories/     # executable Story reference projects and retained evidence
+├── docs/                    # published tutorial, reference and Engineering Story narrative
+├── .github/                 # CI, publication and contribution workflows
+├── mkdocs.yml               # documentation navigation and rendering
+└── requirements-docs.txt
 ```
 
-### `mission/`
+Ownership is intentional:
 
-Contains the OrbitFabric Mission Model files. This directory must remain compatible with the real OrbitFabric Core loader.
+```text
+mission/ and scenarios/
+    canonical mission semantics and executable scenarios
 
-### `scenarios/`
+engineering-stories/*/reference-project/
+    Story-specific executable integration fixtures and evidence
 
-Contains executable OrbitFabric scenario files.
+docs/
+    published narrative, tutorial and technical explanation
+```
 
-### `docs/`
+## Current scenario set
 
-Contains the progressive tutorial, Studio exploration block and current reference overview.
-
-### `mkdocs.yml`
-
-Contains the local MkDocs Material navigation and rendering configuration for the tutorial site.
-
----
-
-## Current Scenario Set
-
-The current executable scenario set is:
+The canonical scenario set currently contains five scenarios:
 
 1. `nominal_payload_acquisition`
 2. `eclipse_low_power_payload_suspension`
 3. `adcs_degraded_pointing_payload_inhibit`
 4. `delayed_sband_downlink_backlog_pending`
+5. `payload_stop_acquisition_verification`
 
-The scenario set is intentionally compact. The priority is semantic consistency, not model size.
+The first four form the main Reference Mission tutorial set. `payload_stop_acquisition_verification` is also consumed by Engineering Story R1.
 
----
+The scenario set is intentionally compact. The priority is semantic consistency and inspectable evidence, not model size.
 
-## Current Tutorial Coverage
+## Validation
 
-The tutorial now covers:
+The repository CI validates the canonical mission, runs all five scenarios, regenerates Core inspection surfaces and contract-facing artifacts, and builds the documentation with strict MkDocs validation.
 
-- Mission Model construction;
-- telemetry, command, event and fault contracts;
-- payload lifecycle;
-- data products and storage intent;
-- contact windows and downlink flows;
-- commandability and autonomy;
-- executable scenario walkthroughs;
-- generated Markdown documentation;
-- simulation JSON reports and plain-text logs;
-- `model_summary.json`;
-- `entity_index.json`;
-- `relationship_manifest.json`;
-- runtime-facing C++17 contract bindings;
-- ground-facing dictionaries and review artifacts;
-- v1.1 candidate dashboard, scenario-run-index and coverage surfaces;
-- current post-v1.1 candidate `mission_snapshot.json`;
-- current additive explicit FDIR Relationship Manifest families;
-- an explicit capability coverage matrix;
-- OrbitFabric Studio Preview 1 mission opening and hydration boundary;
-- Mission Atlas, Entity Explorer and Entity X-Ray;
-- Relationship Explorer, Context Path and Context Map;
-- low-power FDIR context exploration;
-- Operational State Map and Mode Focus;
-- the final Core + Studio engineering workflow boundary.
-
-The Studio section documents only capabilities that are implemented in OrbitFabric Studio 0.15.0 Preview 1.
-
----
-
-## Core Release Posture Used by the Tutorial
-
-The tutorial distinguishes three layers:
-
-```text
-v1.0.0
-  Stable Mission Data Contract baseline
-
-v1.1.0
-  Published candidate integration surface consolidation
-
-current post-v1.1 Core development
-  candidate Mission Snapshot
-  additive explicit FDIR relationship families
-```
-
-The post-v1.1 additions are documented because they are implemented and directly relevant to the current Studio preview, but they are not retroactively described as part of v1.1.0.
-
----
-
-## How to Validate with OrbitFabric Core
-
-From an environment where the `orbitfabric` CLI is installed:
+From an environment where the `orbitfabric` CLI is installed, the primary model check is:
 
 ```bash
 orbitfabric lint mission/
-orbitfabric gen docs mission/
-orbitfabric gen data-flow mission/
-
-orbitfabric export model-summary mission/ \
-  --json generated/reports/model_summary.json
-
-orbitfabric export entity-index mission/ \
-  --json generated/reports/entity_index.json
-
-orbitfabric export relationship-manifest mission/ \
-  --json generated/reports/relationship_manifest.json
-
-orbitfabric sim scenarios/nominal_payload_acquisition.yaml \
-  --json generated/reports/nominal_payload_acquisition_report.json \
-  --log generated/logs/nominal_payload_acquisition.txt
-
-orbitfabric sim scenarios/eclipse_low_power_payload_suspension.yaml \
-  --json generated/reports/eclipse_low_power_payload_suspension_report.json \
-  --log generated/logs/eclipse_low_power_payload_suspension.txt
-
-orbitfabric sim scenarios/adcs_degraded_pointing_payload_inhibit.yaml \
-  --json generated/reports/adcs_degraded_pointing_payload_inhibit_report.json \
-  --log generated/logs/adcs_degraded_pointing_payload_inhibit.txt
-
-orbitfabric sim scenarios/delayed_sband_downlink_backlog_pending.yaml \
-  --json generated/reports/delayed_sband_downlink_backlog_pending_report.json \
-  --log generated/logs/delayed_sband_downlink_backlog_pending.txt
-
-orbitfabric gen runtime mission/
-orbitfabric gen ground mission/
 ```
 
-Core v1.1 candidate surfaces:
-
-```bash
-orbitfabric export dashboard-summary mission/ \
-  --json generated/reports/dashboard_summary.json
-
-orbitfabric export scenario-run-index \
-  --simulation-reports generated/reports \
-  --json generated/reports/scenario_run_index.json
-
-orbitfabric export coverage-summary mission/ \
-  --entity-index generated/reports/entity_index.json \
-  --relationship-manifest generated/reports/relationship_manifest.json \
-  --scenario-run-index generated/reports/scenario_run_index.json \
-  --json generated/reports/coverage_summary.json
-```
-
-Current post-v1.1 Mission Snapshot support:
-
-```bash
-orbitfabric export mission-snapshot mission/ \
-  --json generated/reports/mission_snapshot.json
-```
-
-Generated outputs should generally stay out of version control unless they are intentionally captured as controlled documentation snapshots.
-
----
-
-## Relationship to OrbitFabric Studio
-
-This Reference Mission is the primary engineering acceptance mission for **OrbitFabric Studio 0.15.0 Preview 1**.
-
-The current preview consumes these Core-owned machine-readable surfaces:
-
-```text
-Mission Snapshot
-Entity Index
-Relationship Manifest including explicit FDIR additions
-lint JSON
-```
-
-and exposes them through complementary mission-understanding lenses:
-
-```text
-Open Mission
--> Mission Atlas
--> Entity Explorer / Entity X-Ray
--> Relations / Context Path / Context Map
--> Validation Findings
--> Operations / Operational State Map / Mode Focus
-```
-
-The Reference Mission tutorial uses real model examples such as `eps.low_battery_warning` and `PAYLOAD_ACTIVE` to show that workflow.
-
-The boundary is strict:
-
-```text
-Core owns mission semantics.
-Studio makes Core-owned facts understandable.
-```
-
-Studio Preview 1 remains read-only with respect to Mission Model source.
-
-Capabilities such as Scenario Replay, Coverage UI, Compare, Generated Output Center and Mission Model editing remain deliberately outside the current tutorial because they are not part of Preview 1.
-
----
-
-## Studio Tutorial Screenshots
-
-The Studio tutorial uses five real Preview 1 screenshots under:
-
-```text
-docs/assets/studio/
-```
-
-The publication set is:
-
-```text
-01-mission-atlas.png
-02-entity-xray-low-battery-warning.png
-03-fdir-context-map.png
-04-operational-state-map.png
-05-mode-focus-payload-active.png
-```
-
-The figures were captured from the real Reference Mission in Studio Preview 1 and selected or cropped for editorial clarity. A separate application-open screenshot was intentionally omitted because it duplicated the Mission Atlas surface without adding engineering information.
-
----
-
-## How to Render the Tutorial Locally
-
-Install the documentation dependency and run MkDocs:
+To build the documentation locally:
 
 ```bash
 python -m pip install -r requirements-docs.txt
+mkdocs build --strict
 mkdocs serve
 ```
 
 Then open:
 
 ```text
-http://127.0.0.1:8000/
+http://127.0.0.1:8000/orbitfabric-reference-mission/
 ```
 
-For strict validation:
+Generated outputs under `generated/` and the MkDocs `site/` directory should normally remain outside version control unless intentionally retained as controlled evidence or publication assets.
 
-```bash
-mkdocs build --strict
-```
+## Architectural boundaries
 
----
-
-## Working Rules
-
-1. Do not invent YAML syntax outside the OrbitFabric Core schema.
-2. Keep mission files compatible with the actual Core loader.
-3. Prefer small, scenario-driven increments.
-4. Keep real mission or project references out of public-facing material.
-5. Do not confuse the validated overview with the progressive tutorial path.
-6. Do not describe generated runtime-facing artifacts as flight software.
-7. Do not describe generated ground-facing artifacts as a ground segment.
-8. Preserve the release posture of stable, candidate and current post-release Core surfaces.
-9. Do not document future Studio features as if they existed in Preview 1.
-10. Do not let Studio reconstruct or invent Mission Data Contract semantics.
-11. Every Studio relationship shown in the tutorial must be traceable to a Core-owned relationship record.
-12. Use real Studio screenshots from the Reference Mission rather than mock UI.
-
----
-
-## Ecosystem Role
-
-This repository is not a replacement for OrbitFabric Core or OrbitFabric Studio.
-
-It is the reference workspace used to exercise both projects:
-
-- **OrbitFabric Core** validates, processes, simulates and generates deterministic artifacts from the mission contract.
-- **OrbitFabric Studio** consumes structured Core-owned facts and makes the mission easier for an engineer to navigate and understand.
-
-The complete boundary is:
+The repository follows a strict ownership model:
 
 ```text
 Mission Model defines the source contract.
-Core owns semantic facts and evidence.
-Studio consumes and renders those facts.
-The engineer remains able to trace visible meaning back to Core-owned semantics.
+OrbitFabric Core owns semantic facts and deterministic evidence.
+OrbitFabric Studio consumes and renders Core-owned facts.
+Engineering Stories exercise bounded mission slices against real downstream systems.
+Downstream tools retain their native architecture and authority.
+```
+
+The Reference Mission remains representative and synthetic. Public material must not include proprietary, confidential, export-controlled or NDA-protected mission information.
+
+## Contributing
+
+Contributions are welcome when they improve the reference model, deterministic scenarios, documentation, Engineering Stories, CI or ecosystem-facing clarity while preserving the architectural and clean-room boundaries.
+
+Before contributing, read:
+
+- [CONTRIBUTING.md](CONTRIBUTING.md)
+- [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
+- [SECURITY.md](SECURITY.md)
+
+## Ecosystem role
+
+This repository does not replace OrbitFabric Core, OrbitFabric Studio or downstream engineering systems.
+
+Its role is to provide a shared, inspectable mission context where the ecosystem can be taught, validated and challenged against reproducible engineering questions.
+
+The governing principle is simple:
+
+```text
+One canonical mission meaning.
+Explicit projection boundaries.
+Native downstream ownership.
+Reproducible evidence.
 ```
