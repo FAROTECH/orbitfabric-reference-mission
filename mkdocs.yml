@@ -105,5 +105,6 @@ nav:
   - Reference Overview:
       - Current Reference Mission Overview: 03-reference-overview/00-current-reference-mission-overview.md
   - Engineering Stories:
-      - R1 Flight and Ground:
-          - One Mission Contract Across Flight and Ground: 04-engineering-stories/r1-flight-ground/STORY.md
+      - Overview: engineering-stories/index.md
+      - R1 — One Mission Contract Across Flight and Ground:
+          - Story: engineering-stories/r1-flight-ground/index.md
