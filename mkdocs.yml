@@ -104,3 +104,6 @@ nav:
           - 27, Core and Studio One Engineering Workflow: 02-tutorial/27-core-and-studio-one-engineering-workflow.md
   - Reference Overview:
       - Current Reference Mission Overview: 03-reference-overview/00-current-reference-mission-overview.md
+  - Engineering Stories:
+      - R1 Flight and Ground:
+          - One Mission Contract Across Flight and Ground: 04-engineering-stories/r1-flight-ground/STORY.md
