@@ -1,6 +1,6 @@
 # Flight / Ground Reference Project
 
-This is the executable project behind Engineering Story 01, **One Mission Contract Across Flight and Ground**.
+This is the executable project behind Engineering Story R1, **One Mission Contract Across Flight and Ground**.
 
 It is not a toy example. It uses the canonical OrbitFabric Reference Mission, pinned public downstream products, native F Prime generation/build, the existing OpenC3 F Prime plugin, generated OpenC3 COSMOS verification code and a live command/telemetry loop.
 
@@ -158,6 +158,6 @@ They execute the same accepted architecture on pinned public baselines and publi
 
 ## Read next
 
-- [Engineering Story](../STORY.md)
-- [Technical Deep Dive](../TECHNICAL-DEEP-DIVE.md)
-- [Package entry point](../README.md)
+- **Engineering Story:** https://farotech.github.io/orbitfabric-reference-mission/engineering-stories/r1-flight-ground/
+- **Technical Deep Dive:** https://farotech.github.io/orbitfabric-reference-mission/engineering-stories/r1-flight-ground/technical-deep-dive/
+- **R1 package entry point:** [`../README.md`](../README.md)
