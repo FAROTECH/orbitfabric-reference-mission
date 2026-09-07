@@ -108,3 +108,4 @@ nav:
       - Overview: engineering-stories/index.md
       - R1 — One Mission Contract Across Flight and Ground:
           - Story: engineering-stories/r1-flight-ground/index.md
+          - Technical Deep Dive: engineering-stories/r1-flight-ground/technical-deep-dive.md
