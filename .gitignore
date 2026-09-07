@@ -4,3 +4,4 @@ site/
 __pycache__/
 *.pyc
 .venv-docs/
+engineering-stories/01-one-contract-flight-ground/reference-project/.work/

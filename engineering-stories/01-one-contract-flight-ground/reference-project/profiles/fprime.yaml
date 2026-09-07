@@ -1,0 +1,47 @@
+kind: orbitfabric.projection_profile
+profile_version: 0.1-candidate
+profile:
+  id: engineering-story-flight-ground-fprime
+  version: 0.1.0
+  description: >
+    Minimal F Prime realization for the Reference Mission flight-ground Engineering Story.
+integration:
+  id: orbitfabric-fprime
+  schema_version: 0.1-candidate
+settings:
+  target:
+    fprime:
+      version: v4.2.2
+      commit: 8a62e455a90b6d4f498c332d45d65a2a819988d8
+    fpp:
+      version: 3.2.0
+      commit: 93f484b7521a8e8894cba25b26e633cc87d8e37a
+  telemetry_limits:
+    critical: red
+    warning: yellow
+bindings:
+  - id: payload-stop
+    sources:
+      - domain: commands
+        id: payload.stop_acquisition
+    config:
+      kind: command
+      host_component: Reference.PayloadComponent
+      host_instance: payload
+      symbol: OF_StopAcquisition
+      local_opcode: 33
+      command_kind: async
+      priority: 0
+      queue_full_behavior: drop
+
+  - id: payload-active
+    sources:
+      - domain: telemetry
+        id: radiation_payload.acquisition_active
+    config:
+      kind: telemetry
+      host_component: Reference.PayloadComponent
+      host_instance: payload
+      symbol: OF_AcquisitionActive
+      local_id: 16
+      update: on_change

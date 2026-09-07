@@ -1,0 +1,156 @@
+name: R1 Live Flight Ground Proof
+
+on:
+  pull_request:
+    paths:
+      - "mission/**"
+      - "scenarios/payload_stop_acquisition_verification.yaml"
+      - "engineering-stories/01-one-contract-flight-ground/**"
+      - ".github/workflows/r1-live-flight-ground-proof.yml"
+  workflow_dispatch:
+
+jobs:
+  live-fprime-cosmos:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Reference Mission Story branch
+        uses: actions/checkout@v4
+
+      - name: Checkout exact OrbitFabric Core
+        uses: actions/checkout@v4
+        with:
+          repository: FAROTECH/orbitfabric
+          ref: a25917e81c90396df2b189834e83cf852fa4da5f
+          path: _r1/core
+
+      - name: Checkout exact F Prime adapter
+        uses: actions/checkout@v4
+        with:
+          repository: FAROTECH/orbitfabric-fprime-adapter
+          ref: 598f0ca09a39c10b17e3c588d0f2c7112fe52e06
+          path: _r1/fprime-adapter
+
+      - name: Checkout exact COSMOS adapter
+        uses: actions/checkout@v4
+        with:
+          repository: FAROTECH/orbitfabric-openc3-cosmos-adapter
+          ref: 1e6f477ba0571996fa72dfd0b719a522dcc84ff1
+          path: _r1/cosmos-adapter
+
+      - name: Checkout exact F Prime
+        uses: actions/checkout@v4
+        with:
+          repository: nasa/fprime
+          ref: 8a62e455a90b6d4f498c332d45d65a2a819988d8
+          path: _r1/fprime
+          submodules: recursive
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Checkout exact FPP
+        uses: actions/checkout@v4
+        with:
+          repository: nasa/fpp
+          ref: 93f484b7521a8e8894cba25b26e633cc87d8e37a
+          path: _r1/fpp
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Checkout exact OpenC3 F Prime plugin
+        uses: actions/checkout@v4
+        with:
+          repository: OpenC3/openc3-cosmos-fprime
+          ref: f80d6a2d112a9f2680ad9f404bca2ac116315d33
+          path: _r1/openc3-fprime
+
+      - name: Checkout exact COSMOS project runtime
+        uses: actions/checkout@v4
+        with:
+          repository: OpenC3/cosmos-project
+          ref: 9eb454f06fe0113d05aa6945d88b627155a2aa47
+          path: _r1/cosmos-project
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install pinned products
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r _r1/fprime/requirements.txt
+          test "$(git -C _r1/fpp rev-list -n 1 v3.2.0)" = "93f484b7521a8e8894cba25b26e633cc87d8e37a"
+          python -m pip install ./_r1/core
+          python -m pip install ./_r1/fprime-adapter
+          python -m pip install --no-deps ./_r1/cosmos-adapter
+          python -m pip install 'PyYAML>=6.0' 'jsonschema>=4.23' 'rfc8785>=0.1.4'
+          docker compose version
+
+      - name: Build canonical Core input and F Prime projection
+        run: |
+          rm -rf _r1/work
+          mkdir -p _r1/work/evidence
+          orbitfabric export integration-input-set mission/ --output-dir _r1/work/input-set
+          orbitfabric-fprime run \
+            --operation fpp_contract_projection \
+            --input-set-manifest _r1/work/input-set/integration_input_manifest.json \
+            --profile engineering-stories/01-one-contract-flight-ground/reference-project/profiles/fprime.yaml \
+            --output-dir _r1/work/fprime-projection
+
+      - name: Build native F Prime target and Dictionary
+        run: |
+          python engineering-stories/01-one-contract-flight-ground/reference-project/scripts/materialize_fprime_story.py \
+            --fprime-root "$PWD/_r1/fprime" \
+            --projection "$PWD/_r1/work/fprime-projection" \
+            --output-project "$PWD/_r1/work/fprime-project"
+          python engineering-stories/01-one-contract-flight-ground/reference-project/scripts/configure_fprime_server_role.py \
+            --project "$PWD/_r1/work/fprime-project"
+          cd _r1/work/fprime-project/Ref
+          fprime-util generate
+          fprime-util build
+          cd "$GITHUB_WORKSPACE"
+          DICTIONARY="$(find _r1/work/fprime-project/Ref -type f -name 'RefTopologyDictionary.json' -print -quit)"
+          test -n "$DICTIONARY"
+          cp "$DICTIONARY" _r1/work/evidence/RefTopologyDictionary.json
+          cp _r1/work/fprime-project/ENGINEERING_STORY_FIXTURE.json \
+            _r1/work/evidence/fprime-story-fixture.json
+
+      - name: Generate native OpenC3 F Prime target
+        run: |
+          python engineering-stories/01-one-contract-flight-ground/reference-project/scripts/generate_cosmos_fprime_target.py \
+            --plugin-root "$PWD/_r1/openc3-fprime" \
+            --dictionary "$PWD/_r1/work/evidence/RefTopologyDictionary.json" \
+            --output-dir "$PWD/_r1/work/openc3-fprime"
+
+      - name: Generate COSMOS verification procedure from canonical Scenario
+        run: |
+          orbitfabric-openc3-cosmos run \
+            --operation verification_projection \
+            --input-set-manifest _r1/work/input-set/integration_input_manifest.json \
+            --profile engineering-stories/01-one-contract-flight-ground/reference-project/profiles/cosmos.yaml \
+            --operation-input scenario scenarios/payload_stop_acquisition_verification.yaml \
+            --output-dir _r1/work/cosmos-projection
+
+      - name: Execute live COSMOS to F Prime loop
+        run: |
+          bash engineering-stories/01-one-contract-flight-ground/reference-project/scripts/run_live_fprime_cosmos.sh \
+            "$PWD/_r1/work/fprime-project/Ref" \
+            "$PWD/_r1/openc3-fprime" \
+            "$PWD/_r1/cosmos-project" \
+            "$PWD/_r1/work/live"
+
+      - name: Upload D6 live evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: r1-live-flight-ground-evidence
+          path: |
+            _r1/work/live/evidence
+            _r1/work/evidence/RefTopologyDictionary.json
+            _r1/work/evidence/fprime-story-fixture.json
+            _r1/work/cosmos-projection/integration_result.json
+            _r1/work/cosmos-projection/verification_projection/verification_projection_plan.json
+            _r1/work/cosmos-projection/verification_projection/cosmos/verification.py
+            _r1/work/cosmos-projection/verification_projection/cosmos/verification_suite.py
+          if-no-files-found: warn

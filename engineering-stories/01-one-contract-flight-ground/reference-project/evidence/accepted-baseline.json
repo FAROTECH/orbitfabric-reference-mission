@@ -1,0 +1,73 @@
+{
+  "kind": "orbitfabric.reference_mission.engineering_story_01.accepted_baseline",
+  "version": "1.0",
+  "status": "passed",
+  "accepted_reference_project_commit": "d66f6068235d425bdc2335d4b0cb09a58e70c1de",
+  "canonical_scenario": "scenarios/payload_stop_acquisition_verification.yaml",
+  "canonical_identities": {
+    "command": "payload.stop_acquisition",
+    "telemetry": "radiation_payload.acquisition_active"
+  },
+  "native_fprime_identities": {
+    "command": "Ref.payload.OF_StopAcquisition",
+    "telemetry": "Ref.payload.OF_AcquisitionActive"
+  },
+  "cosmos_identities": {
+    "target": "FPRIME",
+    "command": "Ref.payload.OF_StopAcquisition",
+    "telemetry_packet": "Ref.payload.OF_AcquisitionActive",
+    "telemetry_item": "OF_AcquisitionActive"
+  },
+  "baselines": {
+    "orbitfabric_core": "a25917e81c90396df2b189834e83cf852fa4da5f",
+    "orbitfabric_fprime_adapter": "598f0ca09a39c10b17e3c588d0f2c7112fe52e06",
+    "orbitfabric_openc3_cosmos_adapter": "1e6f477ba0571996fa72dfd0b719a522dcc84ff1",
+    "fprime": "8a62e455a90b6d4f498c332d45d65a2a819988d8",
+    "fpp": "93f484b7521a8e8894cba25b26e633cc87d8e37a",
+    "openc3_cosmos_fprime": "f80d6a2d112a9f2680ad9f404bca2ac116315d33",
+    "openc3_cosmos_project": "9eb454f06fe0113d05aa6945d88b627155a2aa47"
+  },
+  "acceptance": {
+    "reference_mission_ci": {
+      "run": 31,
+      "run_id": 34048036024,
+      "result": "success"
+    },
+    "static_flight_ground_proof": {
+      "run": 26,
+      "run_id": 34048036012,
+      "result": "success",
+      "artifact_id": 9993714514,
+      "artifact_sha256": "edfd9c148bca1ff493e58492633dbde8e22da5c82c88b7d2523679ba478bb279"
+    },
+    "live_flight_ground_proof": {
+      "run": 18,
+      "run_id": 34048036011,
+      "result": "success",
+      "artifact_id": 9993754627,
+      "artifact_sha256": "be0087c27a0fe009c6090f2286f14bb690f766cd53d7006649bc5dd50b5994dc"
+    },
+    "local_live_reproduction": {
+      "result": "success",
+      "platform": "Debian GNU/Linux 12 (bookworm)",
+      "python": "3.12.13"
+    }
+  },
+  "scenario_projection": {
+    "status": "executable_subset",
+    "source_atoms": 8,
+    "projected_atoms": 3,
+    "not_projected_atoms": 5,
+    "blocked_atoms": 0
+  },
+  "live_result": {
+    "status": "passed",
+    "interface_connected": true,
+    "telemetry_path_observable": true,
+    "telemetry_readiness_item": "FPRIME Ref.blockDrv.BD_Cycles BD_Cycles",
+    "command_dispatched": true,
+    "command_completed": true,
+    "verification_state": "completed",
+    "verification_errors": null
+  }
+}
