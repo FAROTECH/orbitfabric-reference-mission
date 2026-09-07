@@ -33,7 +33,7 @@ The first Engineering Story asks whether one mission-level semantic root can dri
 
 The demonstrated vertical slice uses OrbitFabric, F Prime, and OpenC3 COSMOS around one real command-and-telemetry verification loop.
 
-- [Read the R1 Engineering Story](r1-flight-ground/)
+- [Read the R1 Engineering Story](r1-flight-ground/index.md)
 - [Read the R1 Technical Deep Dive](r1-flight-ground/technical-deep-dive.md)
 - [Inspect the accepted R1 Reference Project baseline](https://github.com/FAROTECH/orbitfabric-reference-mission/tree/d66f6068235d425bdc2335d4b0cb09a58e70c1de/engineering-stories/01-one-contract-flight-ground/reference-project)
 

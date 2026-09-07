@@ -1,14 +1,18 @@
 # Technical Deep Dive: One Mission Contract Across Flight and Ground
 
-This document explains the exact mechanics behind Engineering Story R1, **One Mission Contract Across Flight and Ground**.
+This Deep Dive starts where the Engineering Story leaves off.
 
-The front Story asks why a shared mission-level semantic root matters. This Deep Dive asks a different question:
+The front Story explains why a shared mission-level semantic root matters when flight and ground systems remain independently owned. This document follows the accepted R1 proof down to the exact projections, native artifacts, runtime topology, readiness gates and retained evidence.
+
+If you have not read the Story yet, start there first:
+
+[Read the Engineering Story: One Mission Contract Across Flight and Ground](index.md)
+
+The question here is deliberately narrower:
 
 > What, exactly, was projected, built, resolved, executed and retained as evidence?
 
-The answer is intentionally narrower than a generic interoperability claim. R1 proves one vertical slice around a real mission command and telemetry concept, realized natively in F Prime and verified in OpenC3 COSMOS, while preserving explicit ownership boundaries between the mission contract, flight implementation and ground implementation.
-
-[Read the Engineering Story first](./)
+R1 proves one vertical slice around a real mission command and telemetry concept, realized natively in F Prime and verified in OpenC3 COSMOS, while preserving explicit ownership boundaries between the mission contract, flight implementation and ground implementation.
 
 ---
 
@@ -194,7 +198,9 @@ The COSMOS adapter projects the canonical Scenario independently. The two paths 
 
 This is an important nuance: the Dictionary remains authoritative for what F Prime actually exposes, while the COSMOS Projection Profile remains explicit target-side projection intent. R1 proves that the two agree. It does not pretend that one adapter automatically derives the other's configuration.
 
-![One semantic root, two native paths](../../assets/engineering-stories/r1-flight-ground/r1-one-semantic-root-two-native-paths.png)
+![R1 build and evidence pipeline](../../assets/engineering-stories/r1-flight-ground/r1-deep-dive-build-and-evidence-pipeline.png)
+
+*Figure 1. The canonical mission root feeds independent F Prime and COSMOS paths, which converge in the native OpenC3 runtime and produce retained evidence.*
 
 ---
 
@@ -604,6 +610,10 @@ This accounting makes the architectural rule concrete:
 
 The canonical Scenario remains eight atoms. The current projection claims only the subset it can justify.
 
+![R1 ownership boundaries and Scenario accounting](../../assets/engineering-stories/r1-flight-ground/r1-deep-dive-ownership-boundaries.png)
+
+*Figure 2. Canonical semantics, adapter projections, Story-owned fixture decisions and downstream native authority remain distinct. The Scenario stays explicit at 8 source atoms, 3 projected atoms, 5 `not_projected` atoms and 2 executable operations.*
+
 ---
 
 ## 10. The two generated COSMOS operations
@@ -882,8 +892,6 @@ BD_Cycles observable but R1 verification fails
     -> command, payload behavior or verification problem
 ```
 
-![From agreement to evidence](../../assets/engineering-stories/r1-flight-ground/r1-from-agreement-to-evidence.png)
-
 ---
 
 ## 15. Observation tooling is not the observed system
@@ -1001,6 +1009,10 @@ verification_errors:          null
 ```
 
 That is the runtime convergence R1 claims.
+
+![R1 runtime verification sequence](../../assets/engineering-stories/r1-flight-ground/r1-deep-dive-runtime-verification-sequence.png)
+
+*Figure 3. The accepted live sequence establishes telemetry readiness first, then runs the generated verification suite through the native OpenC3 F Prime interface, F Prime runtime and payload component before verifying the returned telemetry.*
 
 ---
 
@@ -1305,7 +1317,7 @@ R1 is intentionally published in three layers.
 
 Why does this matter? What did the experiment teach us?
 
-[Read the Story](./)
+[Read the Story](index.md)
 
 **Technical Deep Dive**
 
