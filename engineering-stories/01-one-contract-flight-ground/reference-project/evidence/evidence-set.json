@@ -1,0 +1,143 @@
+{
+  "curator": {
+    "id": "orbitfabric-reference-mission"
+  },
+  "evidence_set": {
+    "id": "engineering-story-01-r1-retained-evidence"
+  },
+  "kind": "orbitfabric.evidence_set_manifest",
+  "manifest_version": "0.1-candidate",
+  "records": [
+    {
+      "content": {
+        "kind": "fprime.native_runtime_excerpt",
+        "producer": {
+          "id": "nasa-fprime"
+        },
+        "reference": {
+          "media_type": "text/plain",
+          "path": "fprime-runtime.txt",
+          "sha256": "242853c64356dd8d96b930139f48a2c8035c240eea88abc5bac4ce0ed0bfe6f0"
+        }
+      },
+      "id": "fprime-native-runtime",
+      "subjects": [
+        {
+          "scenario_id": "payload_stop_acquisition_verification",
+          "scenario_sha256": "b19ff6e1cf3c45cdb81e239d30aad97e8b6f037703c06f27102b762e69a1146a",
+          "type": "scenario_source"
+        },
+        {
+          "atom_id": "atom-0004",
+          "scenario_sha256": "b19ff6e1cf3c45cdb81e239d30aad97e8b6f037703c06f27102b762e69a1146a",
+          "type": "scenario_atom"
+        },
+        {
+          "result_sha256": "9e348163162a279eb8e0df3a466b55f2d53a613170782596f4d20cb0b8c08ae9",
+          "type": "integration_result"
+        },
+        {
+          "mapping_id": "mapping.payload-stop",
+          "result_sha256": "9e348163162a279eb8e0df3a466b55f2d53a613170782596f4d20cb0b8c08ae9",
+          "type": "integration_mapping"
+        }
+      ]
+    },
+    {
+      "content": {
+        "kind": "openc3_cosmos.runtime_excerpt",
+        "producer": {
+          "id": "openc3-cosmos"
+        },
+        "reference": {
+          "media_type": "text/plain",
+          "path": "cosmos-runtime.txt",
+          "sha256": "8bdae386d63872430083c1288ce0f68a0179ff9a8af4cdf12f19d17a9dbf5738"
+        }
+      },
+      "id": "cosmos-runtime",
+      "subjects": [
+        {
+          "scenario_id": "payload_stop_acquisition_verification",
+          "scenario_sha256": "b19ff6e1cf3c45cdb81e239d30aad97e8b6f037703c06f27102b762e69a1146a",
+          "type": "scenario_source"
+        },
+        {
+          "atom_id": "atom-0004",
+          "scenario_sha256": "b19ff6e1cf3c45cdb81e239d30aad97e8b6f037703c06f27102b762e69a1146a",
+          "type": "scenario_atom"
+        },
+        {
+          "atom_id": "atom-0006",
+          "scenario_sha256": "b19ff6e1cf3c45cdb81e239d30aad97e8b6f037703c06f27102b762e69a1146a",
+          "type": "scenario_atom"
+        },
+        {
+          "result_sha256": "02e831f236d50531bb290f37b278527615785cfaae675de26ab615d544e365c9",
+          "type": "integration_result"
+        },
+        {
+          "mapping_id": "mapping.op-0001",
+          "result_sha256": "02e831f236d50531bb290f37b278527615785cfaae675de26ab615d544e365c9",
+          "type": "integration_mapping"
+        },
+        {
+          "mapping_id": "mapping.op-0002",
+          "result_sha256": "02e831f236d50531bb290f37b278527615785cfaae675de26ab615d544e365c9",
+          "type": "integration_mapping"
+        }
+      ]
+    },
+    {
+      "content": {
+        "format_version": "0.1-candidate",
+        "kind": "reference_mission.live_flight_ground_proof",
+        "producer": {
+          "id": "orbitfabric-reference-mission.r1-live-proof-harness"
+        },
+        "reference": {
+          "media_type": "application/json",
+          "path": "live-proof.json",
+          "sha256": "0030db41d70607d9ef5b41cf8d2b5b70eb1027afe487ed467a4aba936883e9c0"
+        }
+      },
+      "id": "live-flight-ground-proof",
+      "subjects": [
+        {
+          "scenario_id": "payload_stop_acquisition_verification",
+          "scenario_sha256": "b19ff6e1cf3c45cdb81e239d30aad97e8b6f037703c06f27102b762e69a1146a",
+          "type": "scenario_source"
+        },
+        {
+          "atom_id": "atom-0004",
+          "scenario_sha256": "b19ff6e1cf3c45cdb81e239d30aad97e8b6f037703c06f27102b762e69a1146a",
+          "type": "scenario_atom"
+        },
+        {
+          "atom_id": "atom-0006",
+          "scenario_sha256": "b19ff6e1cf3c45cdb81e239d30aad97e8b6f037703c06f27102b762e69a1146a",
+          "type": "scenario_atom"
+        },
+        {
+          "result_sha256": "02e831f236d50531bb290f37b278527615785cfaae675de26ab615d544e365c9",
+          "type": "integration_result"
+        },
+        {
+          "mapping_id": "mapping.op-0001",
+          "result_sha256": "02e831f236d50531bb290f37b278527615785cfaae675de26ab615d544e365c9",
+          "type": "integration_mapping"
+        },
+        {
+          "mapping_id": "mapping.op-0002",
+          "result_sha256": "02e831f236d50531bb290f37b278527615785cfaae675de26ab615d544e365c9",
+          "type": "integration_mapping"
+        },
+        {
+          "artifact_id": "verification.cosmos_procedure",
+          "result_sha256": "02e831f236d50531bb290f37b278527615785cfaae675de26ab615d544e365c9",
+          "type": "integration_artifact"
+        }
+      ]
+    }
+  ]
+}
