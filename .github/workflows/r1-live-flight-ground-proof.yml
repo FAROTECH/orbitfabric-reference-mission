@@ -21,7 +21,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: FAROTECH/orbitfabric
-          ref: a25917e81c90396df2b189834e83cf852fa4da5f
+          ref: b4e1185de4931ff125be699dfe09f63ab3746015
           path: _r1/core
 
       - name: Checkout exact F Prime adapter
@@ -35,7 +35,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: FAROTECH/orbitfabric-openc3-cosmos-adapter
-          ref: 1e6f477ba0571996fa72dfd0b719a522dcc84ff1
+          ref: cf3cb90cf9ae436e7f2650eff0a51647f9df3ab8
           path: _r1/cosmos-adapter
 
       - name: Checkout exact F Prime
@@ -150,7 +150,9 @@ jobs:
             _r1/work/evidence/RefTopologyDictionary.json
             _r1/work/evidence/fprime-story-fixture.json
             _r1/work/cosmos-projection/integration_result.json
+            _r1/work/cosmos-projection/verification_projection/scenario_projection_accounting.json
             _r1/work/cosmos-projection/verification_projection/verification_projection_plan.json
             _r1/work/cosmos-projection/verification_projection/cosmos/verification.py
             _r1/work/cosmos-projection/verification_projection/cosmos/verification_suite.py
           if-no-files-found: warn
+
