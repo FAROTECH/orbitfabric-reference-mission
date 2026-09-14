@@ -260,6 +260,31 @@ jobs:
           print('generic Scenario accounting bundle PASS')
           PY
 
+      - name: Validate replayable Integration Result publication root
+        run: |
+          python engineering-stories/01-one-contract-flight-ground/reference-project/scripts/verify_replayable_result_bundle.py \
+            "$PWD/_r1/work/cosmos-projection"
+
+          BROKEN_BUNDLE="$(mktemp -d)"
+          cp -a _r1/work/cosmos-projection/. "$BROKEN_BUNDLE/"
+          rm "$BROKEN_BUNDLE/verification_projection/cosmos/verification_suite.py"
+          if python engineering-stories/01-one-contract-flight-ground/reference-project/scripts/verify_replayable_result_bundle.py \
+            "$BROKEN_BUNDLE" >_r1/work/broken-replay-bundle.log 2>&1; then
+            echo "broken replay bundle unexpectedly passed" >&2
+            exit 1
+          fi
+          grep -F \
+            "missing artifact verification.cosmos_suite: verification_projection/cosmos/verification_suite.py" \
+            _r1/work/broken-replay-bundle.log
+          echo "broken replay bundle rejected as expected"
+
+      - name: Upload replayable COSMOS Integration Result bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: r1-cosmos-integration-result-bundle
+          path: _r1/work/cosmos-projection
+          if-no-files-found: error
+
       - name: Upload D2-D5 evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -267,4 +292,3 @@ jobs:
           name: r1-flight-ground-proof-evidence
           path: _r1/work/evidence
           if-no-files-found: warn
-
