@@ -1,8 +1,8 @@
 site_name: OrbitFabric Reference Mission
 site_description: Contract-oriented engineering reference mission for OrbitFabric Core and OrbitFabric Studio
-site_url: https://farotech.github.io/orbitfabric-reference-mission/
-repo_url: https://github.com/FAROTECH/orbitfabric-reference-mission
-repo_name: FAROTECH/orbitfabric-reference-mission
+site_url: !ENV [ORBITFABRIC_SITE_URL, 'https://farotech.github.io/orbitfabric-reference-mission/']
+repo_url: !ENV [ORBITFABRIC_REPO_URL, 'https://github.com/FAROTECH/orbitfabric-reference-mission']
+repo_name: !ENV [ORBITFABRIC_REPO_NAME, 'FAROTECH/orbitfabric-reference-mission']
 edit_uri: ""
 
 # Markdown source directory rendered by MkDocs.
