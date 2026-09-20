@@ -9,6 +9,11 @@ on:
       - ".github/workflows/r1-live-flight-ground-proof.yml"
   workflow_dispatch:
 
+env:
+  ORBITFABRIC_CORE_REPOSITORY: FAROTECH/orbitfabric
+  ORBITFABRIC_FPRIME_ADAPTER_REPOSITORY: FAROTECH/orbitfabric-fprime-adapter
+  ORBITFABRIC_COSMOS_ADAPTER_REPOSITORY: FAROTECH/orbitfabric-openc3-cosmos-adapter
+
 jobs:
   live-fprime-cosmos:
     runs-on: ubuntu-latest
@@ -20,21 +25,21 @@ jobs:
       - name: Checkout exact OrbitFabric Core
         uses: actions/checkout@v4
         with:
-          repository: FAROTECH/orbitfabric
+          repository: ${{ env.ORBITFABRIC_CORE_REPOSITORY }}
           ref: b4e1185de4931ff125be699dfe09f63ab3746015
           path: _r1/core
 
       - name: Checkout exact F Prime adapter
         uses: actions/checkout@v4
         with:
-          repository: FAROTECH/orbitfabric-fprime-adapter
+          repository: ${{ env.ORBITFABRIC_FPRIME_ADAPTER_REPOSITORY }}
           ref: 598f0ca09a39c10b17e3c588d0f2c7112fe52e06
           path: _r1/fprime-adapter
 
       - name: Checkout exact COSMOS adapter
         uses: actions/checkout@v4
         with:
-          repository: FAROTECH/orbitfabric-openc3-cosmos-adapter
+          repository: ${{ env.ORBITFABRIC_COSMOS_ADAPTER_REPOSITORY }}
           ref: cf3cb90cf9ae436e7f2650eff0a51647f9df3ab8
           path: _r1/cosmos-adapter
 
