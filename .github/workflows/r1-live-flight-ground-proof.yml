@@ -11,8 +11,8 @@ on:
 
 env:
   ORBITFABRIC_CORE_REPOSITORY: FAROTECH/orbitfabric
-  ORBITFABRIC_FPRIME_ADAPTER_REPOSITORY: FAROTECH/orbitfabric-fprime-adapter
-  ORBITFABRIC_COSMOS_ADAPTER_REPOSITORY: FAROTECH/orbitfabric-openc3-cosmos-adapter
+  ORBITFABRIC_FPRIME_ADAPTER_REPOSITORY: OrbitFabric/orbitfabric-fprime-adapter
+  ORBITFABRIC_COSMOS_ADAPTER_REPOSITORY: OrbitFabric/orbitfabric-openc3-cosmos-adapter
 
 jobs:
   live-fprime-cosmos:
