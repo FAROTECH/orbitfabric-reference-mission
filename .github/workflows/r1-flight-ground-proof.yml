@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 env:
-  ORBITFABRIC_CORE_REPOSITORY: FAROTECH/orbitfabric
+  ORBITFABRIC_CORE_REPOSITORY: OrbitFabric/orbitfabric
   ORBITFABRIC_FPRIME_ADAPTER_REPOSITORY: OrbitFabric/orbitfabric-fprime-adapter
   ORBITFABRIC_COSMOS_ADAPTER_REPOSITORY: OrbitFabric/orbitfabric-openc3-cosmos-adapter
 
