@@ -88,9 +88,9 @@ fi
 
 mkdir -p "${DEPS_DIR}" "${BUILD_DIR}" "${EVIDENCE_DIR}"
 
-ensure_checkout core https://github.com/FAROTECH/orbitfabric.git "${CORE_SHA}"
-ensure_checkout fprime-adapter https://github.com/FAROTECH/orbitfabric-fprime-adapter.git "${FPRIME_ADAPTER_SHA}"
-ensure_checkout cosmos-adapter https://github.com/FAROTECH/orbitfabric-openc3-cosmos-adapter.git "${COSMOS_ADAPTER_SHA}"
+ensure_checkout core https://github.com/OrbitFabric/orbitfabric.git "${CORE_SHA}"
+ensure_checkout fprime-adapter https://github.com/OrbitFabric/orbitfabric-fprime-adapter.git "${FPRIME_ADAPTER_SHA}"
+ensure_checkout cosmos-adapter https://github.com/OrbitFabric/orbitfabric-openc3-cosmos-adapter.git "${COSMOS_ADAPTER_SHA}"
 ensure_checkout fprime https://github.com/nasa/fprime.git "${FPRIME_SHA}" yes
 ensure_checkout fpp https://github.com/nasa/fpp.git "${FPP_SHA}"
 ensure_checkout openc3-fprime https://github.com/OpenC3/openc3-cosmos-fprime.git "${OPENC3_FPRIME_SHA}"
