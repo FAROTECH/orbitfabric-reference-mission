@@ -1329,9 +1329,9 @@ You are here.
 
 Can the result be reproduced without trusting the narrative?
 
-[Inspect the accepted Reference Project baseline](https://github.com/FAROTECH/orbitfabric-reference-mission/tree/d66f6068235d425bdc2335d4b0cb09a58e70c1de/engineering-stories/01-one-contract-flight-ground/reference-project)
+[Inspect the accepted Reference Project baseline](https://github.com/OrbitFabric/orbitfabric-reference-mission/tree/d66f6068235d425bdc2335d4b0cb09a58e70c1de/engineering-stories/01-one-contract-flight-ground/reference-project)
 
-[Inspect the sealed retained evidence](https://github.com/FAROTECH/orbitfabric-reference-mission/tree/c90a7c6d44d018006a4f8f0825411e3f27540fc2/engineering-stories/01-one-contract-flight-ground/reference-project/evidence)
+[Inspect the sealed retained evidence](https://github.com/OrbitFabric/orbitfabric-reference-mission/tree/c90a7c6d44d018006a4f8f0825411e3f27540fc2/engineering-stories/01-one-contract-flight-ground/reference-project/evidence)
 
 That separation is deliberate:
 
