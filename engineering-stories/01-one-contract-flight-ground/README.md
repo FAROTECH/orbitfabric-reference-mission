@@ -6,8 +6,8 @@ The human-facing narrative is owned by the MkDocs documentation and is not dupli
 
 ## Read and inspect
 
-- **Engineering Story:** https://farotech.github.io/orbitfabric-reference-mission/engineering-stories/r1-flight-ground/
-- **Technical Deep Dive:** https://farotech.github.io/orbitfabric-reference-mission/engineering-stories/r1-flight-ground/technical-deep-dive/
+- **Engineering Story:** https://orbitfabric.github.io/orbitfabric-reference-mission/engineering-stories/r1-flight-ground/
+- **Technical Deep Dive:** https://orbitfabric.github.io/orbitfabric-reference-mission/engineering-stories/r1-flight-ground/technical-deep-dive/
 - **Reference Project:** [`reference-project/`](reference-project/)
 
 ## Repository boundary

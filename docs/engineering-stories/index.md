@@ -35,6 +35,6 @@ The demonstrated vertical slice uses OrbitFabric, F Prime, and OpenC3 COSMOS aro
 
 - [Read the R1 Engineering Story](r1-flight-ground/index.md)
 - [Read the R1 Technical Deep Dive](r1-flight-ground/technical-deep-dive.md)
-- [Inspect the accepted R1 Reference Project baseline](https://github.com/FAROTECH/orbitfabric-reference-mission/tree/d66f6068235d425bdc2335d4b0cb09a58e70c1de/engineering-stories/01-one-contract-flight-ground/reference-project)
+- [Inspect the accepted R1 Reference Project baseline](https://github.com/OrbitFabric/orbitfabric-reference-mission/tree/d66f6068235d425bdc2335d4b0cb09a58e70c1de/engineering-stories/01-one-contract-flight-ground/reference-project)
 
 The executable project remains repository-side under `engineering-stories/01-one-contract-flight-ground/reference-project/`; the published Story and Deep Dive remain under `docs/`.
