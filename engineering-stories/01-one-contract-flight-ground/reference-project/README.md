@@ -158,6 +158,6 @@ They execute the same accepted architecture on pinned public baselines and publi
 
 ## Read next
 
-- **Engineering Story:** https://farotech.github.io/orbitfabric-reference-mission/engineering-stories/r1-flight-ground/
-- **Technical Deep Dive:** https://farotech.github.io/orbitfabric-reference-mission/engineering-stories/r1-flight-ground/technical-deep-dive/
+- **Engineering Story:** https://orbitfabric.github.io/orbitfabric-reference-mission/engineering-stories/r1-flight-ground/
+- **Technical Deep Dive:** https://orbitfabric.github.io/orbitfabric-reference-mission/engineering-stories/r1-flight-ground/technical-deep-dive/
 - **R1 package entry point:** [`../README.md`](../README.md)
