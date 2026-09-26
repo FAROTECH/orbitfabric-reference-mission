@@ -2,10 +2,10 @@
 
 **A contract-oriented engineering reference mission for OrbitFabric Core, OrbitFabric Studio and ecosystem integrations.**
 
-[![Reference Mission CI](https://github.com/FAROTECH/orbitfabric-reference-mission/actions/workflows/reference-mission-ci.yml/badge.svg)](https://github.com/FAROTECH/orbitfabric-reference-mission/actions/workflows/reference-mission-ci.yml)
-[![R1 Flight Ground Proof](https://github.com/FAROTECH/orbitfabric-reference-mission/actions/workflows/r1-flight-ground-proof.yml/badge.svg)](https://github.com/FAROTECH/orbitfabric-reference-mission/actions/workflows/r1-flight-ground-proof.yml)
-[![R1 Live Flight Ground Proof](https://github.com/FAROTECH/orbitfabric-reference-mission/actions/workflows/r1-live-flight-ground-proof.yml/badge.svg)](https://github.com/FAROTECH/orbitfabric-reference-mission/actions/workflows/r1-live-flight-ground-proof.yml)
-[![Documentation](https://github.com/FAROTECH/orbitfabric-reference-mission/actions/workflows/docs-pages.yml/badge.svg)](https://github.com/FAROTECH/orbitfabric-reference-mission/actions/workflows/docs-pages.yml)
+[![Reference Mission CI](https://github.com/OrbitFabric/orbitfabric-reference-mission/actions/workflows/reference-mission-ci.yml/badge.svg)](https://github.com/OrbitFabric/orbitfabric-reference-mission/actions/workflows/reference-mission-ci.yml)
+[![R1 Flight Ground Proof](https://github.com/OrbitFabric/orbitfabric-reference-mission/actions/workflows/r1-flight-ground-proof.yml/badge.svg)](https://github.com/OrbitFabric/orbitfabric-reference-mission/actions/workflows/r1-flight-ground-proof.yml)
+[![R1 Live Flight Ground Proof](https://github.com/OrbitFabric/orbitfabric-reference-mission/actions/workflows/r1-live-flight-ground-proof.yml/badge.svg)](https://github.com/OrbitFabric/orbitfabric-reference-mission/actions/workflows/r1-live-flight-ground-proof.yml)
+[![Documentation](https://github.com/OrbitFabric/orbitfabric-reference-mission/actions/workflows/docs-pages.yml/badge.svg)](https://github.com/OrbitFabric/orbitfabric-reference-mission/actions/workflows/docs-pages.yml)
 
 This repository is the shared public engineering environment around a representative small-spacecraft Mission Data Contract.
 
@@ -18,12 +18,12 @@ It is not flight software, not a spacecraft simulator, not a real mission config
 
 ## Start here
 
-- [Published documentation](https://farotech.github.io/orbitfabric-reference-mission/)
-- [Reference Mission orientation and reading path](https://farotech.github.io/orbitfabric-reference-mission/00-orientation/00-purpose-and-reading-path/)
-- [Reference Mission tutorial](https://farotech.github.io/orbitfabric-reference-mission/02-tutorial/00-tutorial-index/)
-- [Engineering Stories](https://farotech.github.io/orbitfabric-reference-mission/engineering-stories/)
-- [R1 Story: One Mission Contract Across Flight and Ground](https://farotech.github.io/orbitfabric-reference-mission/engineering-stories/r1-flight-ground/)
-- [R1 Technical Deep Dive](https://farotech.github.io/orbitfabric-reference-mission/engineering-stories/r1-flight-ground/technical-deep-dive/)
+- [Published documentation](https://orbitfabric.github.io/orbitfabric-reference-mission/)
+- [Reference Mission orientation and reading path](https://orbitfabric.github.io/orbitfabric-reference-mission/00-orientation/00-purpose-and-reading-path/)
+- [Reference Mission tutorial](https://orbitfabric.github.io/orbitfabric-reference-mission/02-tutorial/00-tutorial-index/)
+- [Engineering Stories](https://orbitfabric.github.io/orbitfabric-reference-mission/engineering-stories/)
+- [R1 Story: One Mission Contract Across Flight and Ground](https://orbitfabric.github.io/orbitfabric-reference-mission/engineering-stories/r1-flight-ground/)
+- [R1 Technical Deep Dive](https://orbitfabric.github.io/orbitfabric-reference-mission/engineering-stories/r1-flight-ground/technical-deep-dive/)
 
 ## Two pillars
 
@@ -130,7 +130,7 @@ Final Story / Deep Dive package
   7ac43c9fd8e891168c3461ffa203f6fe54eff80f
 ```
 
-R1 is intentionally bounded. It does not claim generic F Prime project generation, full canonical Scenario execution by COSMOS, flight behavior generation from mission expected effects, generic adapter composition or write-once-run-everywhere behavior. The exact claims, non-claims, ownership boundaries and retained evidence are documented in the [Technical Deep Dive](https://farotech.github.io/orbitfabric-reference-mission/engineering-stories/r1-flight-ground/technical-deep-dive/).
+R1 is intentionally bounded. It does not claim generic F Prime project generation, full canonical Scenario execution by COSMOS, flight behavior generation from mission expected effects, generic adapter composition or write-once-run-everywhere behavior. The exact claims, non-claims, ownership boundaries and retained evidence are documented in the [Technical Deep Dive](https://orbitfabric.github.io/orbitfabric-reference-mission/engineering-stories/r1-flight-ground/technical-deep-dive/).
 
 ## Repository layout
 
